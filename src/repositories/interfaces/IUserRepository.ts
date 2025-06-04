@@ -2,9 +2,9 @@ import { User } from '../../models/User.model';
 
 export interface IUserRepository {
 
-    update(user: User): Promise<User>;
+    update(id: number, deleted: boolean): Promise<User>;
 
-    delete(user: User): Promise<void>;
+    delete(id: number): Promise<void>;
 
     findById(id: number): Promise<User | null>;
 

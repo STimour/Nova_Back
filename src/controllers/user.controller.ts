@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { User } from '../models/User.model';
 import { BaseController } from './base.controller';
+import userService from '../services/user.service';
 
 class UserController extends BaseController {
     constructor() {
@@ -46,20 +47,23 @@ class UserController extends BaseController {
     }
 
     public async deleteUser(req: Request, res: Response): Promise<void> {
-        const userId = req.params.id;
-        
-        const isDeleted = req.body;
-
         try {
-            // Trouver l'utilisateur
-            const user = await User.findByPk(userId);
+            const userId = parseInt(req.params.id);
+        
+            const isDelete = req.body;
 
-            if (!user) {
+            if(isNaN(userId)){
+                res.status(500).json({ error: 'Erreur interne du serveur' });
+            }
+            // Trouver l'utilisateur
+            const user = await userService.deleteUser(userId, isDelete)
+
+            if (user) {
                 res.status(400).json({ error: 'Une erreur est survenue lors de la suppression' });
                 return;
             }
 
-            if(isDeleted){
+            if(isDelete){
                 await user.destroy();
                 res.status(200).json({ message: 'Utilisateur supprimé "ph"' });
                 return;

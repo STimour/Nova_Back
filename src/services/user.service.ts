@@ -51,7 +51,8 @@ class UserService {
 
     public async deleteUser(id: number, isDelete: boolean) {
         // Logique métier pour récupérer un utilisateur par son ID
-        const user = await U
+        const user = await this._userRepository.findById(id);
+
     }
 
 

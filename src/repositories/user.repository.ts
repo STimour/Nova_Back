@@ -14,11 +14,24 @@ export class UserRepository implements IUserRepository {
         return User.findByPk(id);
     }
 
-    async update(user: User): Promise<User> {
-        return user.save();
+    async update(id: number, deleted: boolean): Promise<User> {
+        const user = await this.findById(id);
+        if (!user) {
+            throw new Error("User not found");
+        }
+        user.deleted = deleted;
+        await user.save();
+        return user;
     }
 
-    async delete(user: User): Promise<void> {
+    async delete(id: number): Promise<void> {
+        
+        const user = await this.findById(id);
+        if (!user) {
+            throw new Error("User not found");
+        }
         await user.destroy();
     }
 }
+
+//TODO Finir les dispatch 
