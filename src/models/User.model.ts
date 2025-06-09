@@ -1,60 +1,76 @@
-import sequelize from '../config/db';
+import sequelize from '../configDB/db';
 import { DataTypes } from 'sequelize';
 import { Model } from 'sequelize';
-import { GenreEnum } from './types/genre.enum';
-import { RoleEnum } from './types/user.enum';
 import { Availability } from './Availability.model';
+import { Token } from './Token.model';
 
 export class User extends Model {
-  public id!: number;
-  public lastname?: string;
-  public firstname?: string;
-  public email!: string;
-  public password!: string;
-  public sexe!: GenreEnum;
-  public role!: RoleEnum;
+    public id!: number;
+    public lastname?: string;
+    public firstname?: string;
+    public email!: string;
+    public password!: string;
+    public sexe!: string;
+    public birthdate?: Date;
+    public role!: string;
+    public deleted!: boolean;
+    public readonly createdAt!: Date;
+    public readonly updatedAt!: Date;
+
+    // Associations (optionnel, mais utile pour TypeScript)
+    public readonly tokens?: Token[];
 }
 
 User.init(
-  {
-    id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
-      primaryKey: true
+    {
+        id: {
+            type: DataTypes.INTEGER,
+            autoIncrement: true,
+            primaryKey: true
+        },
+        lastname: {
+            type: DataTypes.STRING,
+            allowNull: true
+        },
+        firstname: {
+            type: DataTypes.STRING,
+            allowNull: true
+        },
+        email: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            unique: true
+        },
+        password: {
+            type: DataTypes.STRING,
+            allowNull: false
+        },
+        sexe: {
+            type: DataTypes.STRING,
+            allowNull: false
+        },
+        birthdate: {
+            type: DataTypes.DATE,
+            allowNull: true
+        },
+        role: {
+            type: DataTypes.STRING,
+            allowNull: false
+        },
+        deleted: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false
+        }
     },
-    lastname: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    firstname: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true
-    },
-    password: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    sexe: {
-      type: DataTypes.ENUM(...Object.values(GenreEnum)),
-      allowNull: false
-    },
-    role: {
-      type: DataTypes.ENUM(...Object.values(RoleEnum)),
-      allowNull: false
+    {
+        sequelize,
+        tableName: 'users',
+        modelName: 'User',
+        timestamps: true
     }
-  },
-  {
-    sequelize,
-    tableName: 'users',
-    modelName: 'User',
-    timestamps: true
-  }
 );
 
 User.hasMany(Availability, { foreignKey: 'idUser', as: 'availabilities' });
 Availability.belongsTo(User, { foreignKey: 'idUser', as: 'user' });
+User.hasMany(Token, { foreignKey: 'userId', as: 'tokens' });
