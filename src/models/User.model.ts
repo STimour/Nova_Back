@@ -16,9 +16,6 @@ export class User extends Model {
     public deleted!: boolean;
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
-
-    // Associations (optionnel, mais utile pour TypeScript)
-    public readonly tokens?: Token[];
 }
 
 User.init(
@@ -71,6 +68,3 @@ User.init(
     }
 );
 
-User.hasMany(Availability, { foreignKey: 'idUser', as: 'availabilities' });
-Availability.belongsTo(User, { foreignKey: 'idUser', as: 'user' });
-User.hasMany(Token, { foreignKey: 'userId', as: 'tokens' });

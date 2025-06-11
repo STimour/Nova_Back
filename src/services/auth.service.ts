@@ -3,7 +3,8 @@ import { Token } from '../models/Token.model';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import argon2 from 'argon2';
 import dotenv from 'dotenv';
-import { I_JwtPayloadExtended } from '../typeExtends/jwt.extends';
+import { IJwtPayloadExtended } from '../typeExtends/jwt.extends';
+
 
 dotenv.config();
 
@@ -129,7 +130,7 @@ export class AuthService {
         }
     }
 
-    public async analyseToken(fullTokenString: string): Promise<I_JwtPayloadExtended | null> {
+    public async analyseToken(fullTokenString: string): Promise<IJwtPayloadExtended | null> {
         if (!fullTokenString || typeof fullTokenString !== 'string') {
             console.warn('analyseToken: fullTokenString is missing or not a string');
             return null;
@@ -145,9 +146,9 @@ export class AuthService {
             }
             const tokenString = parts[1];
 
-            let decodedPayload: I_JwtPayloadExtended;
+            let decodedPayload: IJwtPayloadExtended;
             try {
-                decodedPayload = jwt.verify(tokenString, this.JWT_SECRET) as I_JwtPayloadExtended;
+                decodedPayload = jwt.verify(tokenString, this.JWT_SECRET) as IJwtPayloadExtended;
             } catch (jwtError: any) {
                 console.warn(
                     `analyseToken: JWT verification failed - ${jwtError.name}: ${jwtError.message}`

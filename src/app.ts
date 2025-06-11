@@ -1,7 +1,6 @@
 import express, { Application, Request, Response } from 'express';
 import sequelize from './configDB/db';
 import MainRouter from './routes/main.routes';
-
 import cors from 'cors';
 import { errorHandler } from './middlwares/errorHandler.middlewares';
 
@@ -29,7 +28,9 @@ class App {
         this.app.get('/', (req: Request, res: Response) => {
             res.send('Hello, SkillUp API!');
         });
-        this.app.use('/api', MainRouter); // Préfixe pour toutes les routes de l'API
+        // Préfixe pour toutes les routes de l'API
+        this.app.use('/api', MainRouter);
+
         // Middleware global pour gérer les erreurs
         this.app.use(errorHandler);
     }
@@ -37,8 +38,8 @@ class App {
     private async initializeDatabaseConnection(): Promise<void> {
         try {
             await sequelize.authenticate();
-            console.log('Database connection has been established successfully.');
-            await sequelize.sync(); // Utiliser { force: true } uniquement en développement pour recréer les tables
+            console.log('Database connection has been established successfully.'); // Utiliser { alter: true } ou { force: true } uniquement en développement
+            await sequelize.sync({ alter: true }); // En développement, pour aider à synchroniser le schéma. Pour la production, utilisez des migrations.
             console.log('Database synced');
         } catch (error) {
             console.error('Unable to connect to the database or sync:', error);

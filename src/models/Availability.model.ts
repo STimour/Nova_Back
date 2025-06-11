@@ -47,3 +47,7 @@ Availability.init(
         timestamps: true
     }
 );
+
+Availability.belongsTo(User, { foreignKey: 'idUser', as: 'user' });
+User.hasMany(Availability, { foreignKey: 'idUser', as: 'availabilities' });
+// Définir l'association

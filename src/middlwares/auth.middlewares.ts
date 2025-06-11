@@ -1,7 +1,7 @@
 import { NextFunction, Response } from 'express';
 import { AuthService } from '../services/auth.service';
 import { AuthenticatedRequest } from '../typeExtends/request.extends';
-import { I_JwtPayloadExtended } from '../typeExtends/jwt.extends';
+import { IJwtPayloadExtended } from '../typeExtends/jwt.extends';
 import { User } from '../models/User.model';
 import { getErrorMessage } from './errorHandler.middlewares';
 
@@ -24,7 +24,7 @@ export class MiddlewareService {
         }
 
         try {
-            const decodedPayload: I_JwtPayloadExtended | null =
+            const decodedPayload: IJwtPayloadExtended | null =
                 await this._authService.analyseToken(fullToken);
 
             if (decodedPayload === null) {
