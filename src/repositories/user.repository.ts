@@ -6,11 +6,11 @@ import logger from '../utils/logger';
 import { IUserRepository } from './interfaces/IUserRepository';
 import { getErrorMessage } from '../middlwares/errorHandler.middlewares';
 
-export class UserRepository implements IUserRepository {
-    private readonly USER_NOT_FOUND: boolean;
+class UserRepository implements IUserRepository {
+    private readonly USER_FOUND: boolean;
 
     constructor() {
-        this.USER_NOT_FOUND = true;
+        this.USER_FOUND = true;
     }
 
     public async findAllUsers(): Promise<User[]> {
@@ -19,6 +19,39 @@ export class UserRepository implements IUserRepository {
         } catch (error) {
             logger.error('Error in UserRepository.findAllUsers: %s', getErrorMessage(error));
             throw error;
+        }
+    }
+
+    public async findUser(id: number): Promise<User | undefined> {
+        try {
+            const user: User | null = await User.findByPk(id);
+
+            if (user === null) {
+                logger.error("User for id %d: %s wasn't found", id);
+                return undefined;
+            }
+
+            return user;
+        } catch (error) {
+            logger.error('Error in UserRepository.findUser: %s', getErrorMessage(error));
+            throw error;
+        }
+    }
+
+    public async findUserByEmail(email: string): Promise<User | undefined> {
+        try {
+            const user: User | null = await User.findOne({
+                where: { email: email }
+            });
+
+            if (user === null) {
+                return undefined;
+            }
+
+            return user;
+        } catch (error) {
+            logger.error('Error in UserRepository.findUserByEmail: %s', getErrorMessage(error));
+            return undefined;
         }
     }
 
@@ -35,9 +68,7 @@ export class UserRepository implements IUserRepository {
         try {
             return await User.findAll({
                 where: { role: 'helper' },
-                include: [
-                    { model: Reputation, as: 'reputations' }
-                ]
+                include: [{ model: Reputation, as: 'reputations' }]
             });
         } catch (error) {
             logger.error('Error in UserRepository.findAllHelpers: %s', getErrorMessage(error));
@@ -55,9 +86,9 @@ export class UserRepository implements IUserRepository {
                 where: { email: email, firstname: firstname, deleted }
             });
 
-            if (user !== null) return !this;
+            if (user !== null) return this.USER_FOUND;
 
-            return false;
+            return !this.USER_FOUND;
         } catch (error) {
             logger.error(
                 'Error in UserRepository.verifyUserBeforeInscription for %s %s: %s',
@@ -139,3 +170,5 @@ export class UserRepository implements IUserRepository {
 
     // TODO la suppression logique et la mise à jour des profils
 }
+
+export default UserRepository;

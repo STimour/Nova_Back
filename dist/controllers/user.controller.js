@@ -1,22 +1,46 @@
-"use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const user_service_1 = __importDefault(require("../services/user.service"));
-const errorHandler_middlewares_1 = require("../middlwares/errorHandler.middlewares"); // Importer pour logger
-const logger_1 = __importDefault(require("../utils/logger"));
+'use strict';
+var __awaiter =
+    (this && this.__awaiter) ||
+    function (thisArg, _arguments, P, generator) {
+        function adopt(value) {
+            return value instanceof P
+                ? value
+                : new P(function (resolve) {
+                      resolve(value);
+                  });
+        }
+        return new (P || (P = Promise))(function (resolve, reject) {
+            function fulfilled(value) {
+                try {
+                    step(generator.next(value));
+                } catch (e) {
+                    reject(e);
+                }
+            }
+            function rejected(value) {
+                try {
+                    step(generator['throw'](value));
+                } catch (e) {
+                    reject(e);
+                }
+            }
+            function step(result) {
+                result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected);
+            }
+            step((generator = generator.apply(thisArg, _arguments || [])).next());
+        });
+    };
+var __importDefault =
+    (this && this.__importDefault) ||
+    function (mod) {
+        return mod && mod.__esModule ? mod : { default: mod };
+    };
+Object.defineProperty(exports, '__esModule', { value: true });
+const user_service_1 = __importDefault(require('../services/user.service'));
+const errorHandler_middlewares_1 = require('../middlwares/errorHandler.middlewares'); // Importer pour logger
+const logger_1 = __importDefault(require('../utils/logger'));
 class UserController {
-    constructor() { }
+    constructor() {}
     getAllUsers(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -28,9 +52,11 @@ class UserController {
                 }
                 res.status(200).json(users);
                 return;
-            }
-            catch (error) {
-                logger_1.default.error('Error in getAllUsers controller: %s', (0, errorHandler_middlewares_1.getErrorMessage)(error));
+            } catch (error) {
+                logger_1.default.error(
+                    'Error in getAllUsers controller: %s',
+                    (0, errorHandler_middlewares_1.getErrorMessage)(error)
+                );
                 res.status(500).json({ message: 'Error fetching users' });
                 return;
             }
@@ -42,9 +68,11 @@ class UserController {
                 const helpers = yield user_service_1.default.getAllHelpers();
                 res.status(200).json(helpers);
                 return;
-            }
-            catch (error) {
-                logger_1.default.error('Error in getAllHelpers controller: %s', (0, errorHandler_middlewares_1.getErrorMessage)(error));
+            } catch (error) {
+                logger_1.default.error(
+                    'Error in getAllHelpers controller: %s',
+                    (0, errorHandler_middlewares_1.getErrorMessage)(error)
+                );
                 res.status(500).json({ message: 'Error fetching helpers' });
                 return;
             }
@@ -67,9 +95,12 @@ class UserController {
                 }
                 res.status(200).json(helper);
                 return;
-            }
-            catch (error) {
-                logger_1.default.error('Error in getHelperById controller for ID %s: %s', req.params.id, (0, errorHandler_middlewares_1.getErrorMessage)(error));
+            } catch (error) {
+                logger_1.default.error(
+                    'Error in getHelperById controller for ID %s: %s',
+                    req.params.id,
+                    (0, errorHandler_middlewares_1.getErrorMessage)(error)
+                );
                 res.status(500).json({ message: 'Error fetching helper' });
                 return;
             }
@@ -81,9 +112,11 @@ class UserController {
                 const students = yield user_service_1.default.findAllStudents();
                 res.status(200).json(students);
                 return;
-            }
-            catch (error) {
-                logger_1.default.error('Error in getAllStudents controller: %s', (0, errorHandler_middlewares_1.getErrorMessage)(error));
+            } catch (error) {
+                logger_1.default.error(
+                    'Error in getAllStudents controller: %s',
+                    (0, errorHandler_middlewares_1.getErrorMessage)(error)
+                );
                 res.status(500).json({ message: 'Error fetching students' });
                 return;
             }
@@ -106,9 +139,12 @@ class UserController {
                 }
                 res.status(200).json(student);
                 return;
-            }
-            catch (error) {
-                logger_1.default.error('Error in getStudentById controller for ID %s: %s', req.params.id, (0, errorHandler_middlewares_1.getErrorMessage)(error));
+            } catch (error) {
+                logger_1.default.error(
+                    'Error in getStudentById controller for ID %s: %s',
+                    req.params.id,
+                    (0, errorHandler_middlewares_1.getErrorMessage)(error)
+                );
                 res.status(500).json({ message: 'Error fetching student' });
                 return;
             }
@@ -126,9 +162,11 @@ class UserController {
                 }
                 res.status(201).json(newUser);
                 return;
-            }
-            catch (error) {
-                logger_1.default.error('Error in createUser controller: %s', (0, errorHandler_middlewares_1.getErrorMessage)(error));
+            } catch (error) {
+                logger_1.default.error(
+                    'Error in createUser controller: %s',
+                    (0, errorHandler_middlewares_1.getErrorMessage)(error)
+                );
                 res.status(500).json({ message: 'Error creating user' });
                 return;
             }

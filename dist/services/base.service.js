@@ -1,5 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
+'use strict';
+Object.defineProperty(exports, '__esModule', { value: true });
 exports.BaseService = void 0;
 class BaseService {
     constructor() {
@@ -11,7 +11,8 @@ class BaseService {
     }
     verifyUserData(userData) {
         let isUserDataValid = true;
-        if (!userData.password ||
+        if (
+            !userData.password ||
             userData.password.length < 8 ||
             !userData.email ||
             !userData.email.includes('@') ||
@@ -20,7 +21,8 @@ class BaseService {
             !userData.lastname ||
             !userData.sexe ||
             !userData.birthdate ||
-            !userData.role) {
+            !userData.role
+        ) {
             return !isUserDataValid;
         }
         return isUserDataValid;

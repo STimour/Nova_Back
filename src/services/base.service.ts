@@ -7,12 +7,6 @@ export class BaseService {
         this.IS_WORK_DONE = true;
     }
 
-    public hashPassword(password: string): string {
-        const hashedPassword = '';
-
-        return hashedPassword;
-    }
-
     public verifyUserData(userData: IUser): boolean {
         let isUserDataValid: boolean = true;
 

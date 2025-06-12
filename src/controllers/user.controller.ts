@@ -5,12 +5,16 @@ import { IUser } from '../models/interfaces/IUser';
 import logger from '../utils/logger';
 
 class UserController {
-    constructor() {}
+    private readonly _userService;
+
+    constructor() {
+        this._userService = new userService();
+    }
 
     public async getAllUsers(req: Request, res: Response): Promise<void> {
         try {
-            const users = await userService.findAllUsers();
-            if(users.length === 0){
+            const users = await this._userService.findAllUsers();
+            if (users.length === 0) {
                 logger.warn('No users found');
                 res.status(404).json({ message: 'No users found' });
                 return;
@@ -24,9 +28,36 @@ class UserController {
         }
     }
 
+    public async getUserById(req: Request, res: Response): Promise<void> {
+        try {
+            const userId = parseInt(req.params.id);
+            if (isNaN(userId)) {
+                logger.warn('Invalid user ID: %s', userId);
+                res.status(400).json({ message: 'Invalid user ID' });
+                return;
+            }
+            const user = await this._userService.findUser(userId);
+            if (!user) {
+                logger.warn('User not found with ID: %s', userId);
+                res.status(404).json({ message: 'User not found' });
+                return;
+            }
+            res.status(200).json(user);
+            return;
+        } catch (error) {
+            logger.error(
+                'Error in getUserById controller for ID %s: %s',
+                req.params.id,
+                getErrorMessage(error)
+            );
+            res.status(500).json({ message: 'Error fetching user' });
+            return;
+        }
+    }
+
     public async getAllHelpers(req: Request, res: Response): Promise<void> {
         try {
-            const helpers = await userService.getAllHelpers();
+            const helpers = await this._userService.getAllHelpers();
             res.status(200).json(helpers);
             return;
         } catch (error) {
@@ -44,7 +75,7 @@ class UserController {
                 res.status(400).json({ message: 'Invalid helper ID' });
                 return;
             }
-            const helper = await userService.findHelper(helperId);
+            const helper = await this._userService.findHelper(helperId);
             if (!helper) {
                 logger.warn('Helper not found with ID: %s', helperId);
                 res.status(404).json({ message: 'Helper not found' });
@@ -53,7 +84,11 @@ class UserController {
             res.status(200).json(helper);
             return;
         } catch (error) {
-            logger.error('Error in getHelperById controller for ID %s: %s', req.params.id, getErrorMessage(error));
+            logger.error(
+                'Error in getHelperById controller for ID %s: %s',
+                req.params.id,
+                getErrorMessage(error)
+            );
             res.status(500).json({ message: 'Error fetching helper' });
             return;
         }
@@ -61,7 +96,7 @@ class UserController {
 
     public async getAllStudents(req: Request, res: Response): Promise<void> {
         try {
-            const students = await userService.findAllStudents();
+            const students = await this._userService.findAllStudents();
             res.status(200).json(students);
             return;
         } catch (error) {
@@ -79,7 +114,7 @@ class UserController {
                 res.status(400).json({ message: 'Invalid student ID' });
                 return;
             }
-            const student = await userService.findStudent(studentId);
+            const student = await this._userService.findStudent(studentId);
             if (!student) {
                 logger.warn('Student not found with ID: %s', studentId);
                 res.status(404).json({ message: 'Student not found' });
@@ -88,7 +123,11 @@ class UserController {
             res.status(200).json(student);
             return;
         } catch (error) {
-            logger.error('Error in getStudentById controller for ID %s: %s', req.params.id, getErrorMessage(error));
+            logger.error(
+                'Error in getStudentById controller for ID %s: %s',
+                req.params.id,
+                getErrorMessage(error)
+            );
             res.status(500).json({ message: 'Error fetching student' });
             return;
         }
@@ -100,7 +139,7 @@ class UserController {
 
             const newUser: IUser = req.body;
 
-            estInscrit = await userService.createUser(newUser);
+            estInscrit = await this._userService.createUser(newUser);
 
             if (!estInscrit) {
                 res.status(400).json({ message: 'Error creating user' });

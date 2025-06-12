@@ -1,4 +1,5 @@
-import { UserRepository } from './../repositories/user.repository';
+import UserRepository from './../repositories/user.repository';
+import AuthService from './../services/auth.service';
 import { User } from '../models/User.model';
 import { IUser } from '../models/interfaces/IUser';
 import { BaseService } from './base.service';
@@ -10,10 +11,12 @@ class UserService extends BaseService {
     private IS_NEW_USER: boolean;
 
     private readonly _userRepository;
+    private readonly _authService;
 
     constructor() {
         super();
         this._userRepository = new UserRepository();
+        this._authService = new AuthService();
         this.IS_USER_DATA_VALID = true;
         this.IS_NEW_USER = true;
     }
@@ -25,6 +28,34 @@ class UserService extends BaseService {
         } catch (error) {
             logger.error('Error in UserService.findAllUsers: %s', getErrorMessage(error));
             throw error;
+        }
+    }
+
+    public async findUser(id: number): Promise<User | undefined> {
+        try {
+            const user: User | undefined = await this._userRepository.findUser(id);
+            return user;
+        } catch (error) {
+            logger.error('Error in UserService.findUser: %s', getErrorMessage(error));
+            throw error;
+        }
+    }
+
+    public async findUserByEmail(email: string): Promise<User | undefined> {
+        try {
+            const user: User | undefined = await this._userRepository.findUserByEmail(email);
+            if (user === undefined) {
+                logger.info('User not found: %s', email);
+                return undefined;
+            }
+            return user;
+        } catch (error) {
+            logger.error(
+                'Error in UserService.findUserByEmail: %s; %s',
+                email,
+                getErrorMessage(error)
+            );
+            return undefined;
         }
     }
 
@@ -73,7 +104,8 @@ class UserService extends BaseService {
         try {
             if (!this.verifyUserData(userData)) return !this.IS_USER_DATA_VALID;
 
-            userData.password = this.hashPassword(userData.password);
+            const password = this._authService.hashPassword(userData.password);
+            userData.password = (await password).toString();
 
             const isUserExists: boolean = await this._userRepository.isUserExists(
                 userData.email,
@@ -121,4 +153,4 @@ class UserService extends BaseService {
     // ... autres méthodes (getUserById, updateUser, deleteUser avec logique métier)
 }
 
-export default new UserService(); // Ou injectez les dépendances si vous utilisez un conteneur d'injection
+export default UserService; // Ou injectez les dépendances si vous utilisez un conteneur d'injection
