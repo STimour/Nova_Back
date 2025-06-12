@@ -1,8 +1,9 @@
 import { getErrorMessage } from '../middlwares/errorHandler.middlewares';
 import { Token } from '../models/Token.model';
 import logger from '../utils/logger';
+import { IAuthRepository } from './interfaces/IAuthRepository';
 
-class AuthRepository {
+class AuthRepository implements IAuthRepository {
     public async createToken(
         newAuthToken: string,
         userId: number,
