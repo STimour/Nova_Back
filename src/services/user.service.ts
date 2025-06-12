@@ -1,60 +1,122 @@
 import { UserRepository } from './../repositories/user.repository';
-// src/services/userService.ts
 import { User } from '../models/User.model';
+import { IUser } from '../models/interfaces/IUser';
+import { BaseService } from './base.service';
+import { getErrorMessage } from '../middlwares/errorHandler.middlewares';
+import logger from '../utils/logger';
 
-// Importez d'autres modèles ou repositories si nécessaire
-// import { Reputation } from '../models/Reputation.model';
-// import { UnitOfWork } from '../utils/unitOfWork'; // Supposons que vous ayez un UoW
+class UserService extends BaseService {
+    private readonly IS_USER_DATA_VALID: boolean;
+    private IS_NEW_USER: boolean;
 
-class UserService {
-    // constructor(private uow: UnitOfWork) {} // Injectez le UoW si nécessaire
     private readonly _userRepository;
 
     constructor() {
+        super();
         this._userRepository = new UserRepository();
+        this.IS_USER_DATA_VALID = true;
+        this.IS_NEW_USER = true;
     }
 
-
-
-    public async getAllHelpers() {
-        // Logique métier pour récupérer les helpers
-        return User.findAll({
-            where: {
-                role: 'helper',
-                deleted: false
-            }
-            // Inclure d'autres modèles si nécessaire, par exemple Reputation
-            // include: [{ model: Reputation, as: 'reputation' }]
-        });
-    }
-
-    public async createUser(userData: any) {
-        // Logique métier complexe pour la création
-        // await this.uow.startTransaction(); // Démarre la transaction si nécessaire
+    public async findAllUsers(): Promise<User[]> {
         try {
-            // 1. Validation des données (peut être ici ou avant d'appeler le service)
-            // 2. Hasher le mot de passe (exemple)
-            // userData.password = await hashPassword(userData.password);
-
-            const newUser = await User.create(userData);
-
-            // 3. Créer des entités liées (exemple)
-            // await Reputation.create({ idUser: newUser.id, score: 0 });
-
-            // await this.uow.commit(); // Commit la transaction
-            return newUser;
+            const users: User[] = await this._userRepository.findAllUsers();
+            return users;
         } catch (error) {
-            // await this.uow.rollback(); // Rollback en cas d'erreur
-            throw error; // Relance l'erreur pour que le contrôleur la gère
+            logger.error('Error in UserService.findAllUsers: %s', getErrorMessage(error));
+            throw error;
         }
     }
 
-    public async deleteUser(id: number, isDelete: boolean) {
-        // Logique métier pour récupérer un utilisateur par son ID
-        const user = await U
+    public async getAllHelpers(): Promise<User[]> {
+        try {
+            const helpers: User[] = await this._userRepository.findAllHelpers();
+            return helpers;
+        } catch (error) {
+            logger.error('Error in UserService.getAllHelpers: %s', getErrorMessage(error));
+            throw error;
+        }
     }
 
+    public async findHelper(id: number): Promise<User | undefined> {
+        try {
+            const helper: User | undefined = await this._userRepository.findHelper(id);
+            return helper;
+        } catch (error) {
+            logger.error('Error in UserService.findHelper: %s', getErrorMessage(error));
+            throw error;
+        }
+    }
 
+    public async findAllStudents(): Promise<User[]> {
+        try {
+            const students: User[] = await this._userRepository.findAllStudents();
+            return students;
+        } catch (error) {
+            logger.error('Error in UserService.findAllStudents: %s', getErrorMessage(error));
+            throw error;
+        }
+    }
+
+    public async findStudent(id: number): Promise<User | undefined> {
+        try {
+            const student: User | undefined = await this._userRepository.findStudent(id);
+            return student;
+        } catch (error) {
+            logger.error('Error in UserService.findStudent: %s', getErrorMessage(error));
+            throw error;
+        }
+    }
+
+    public async createUser(userData: IUser): Promise<boolean> {
+        // Dans la version finale il faudrait changer le type de retour pour gérér au mieux les cas avec des utilisateur existant
+        try {
+            if (!this.verifyUserData(userData)) return !this.IS_USER_DATA_VALID;
+
+            userData.password = this.hashPassword(userData.password);
+
+            const isUserExists: boolean = await this._userRepository.isUserExists(
+                userData.email,
+                userData.firstname
+            );
+
+            if (isUserExists) {
+                logger.warn('User already exists', userData.firstname, userData.lastname);
+                return !this.IS_NEW_USER;
+            }
+
+            const isUserCreated: boolean = await this._userRepository.createUser(userData);
+
+            if (!isUserCreated) {
+                logger.warn('Error creating user', userData.firstname, userData.lastname);
+                return !this.IS_WORK_DONE;
+            }
+
+            return this.IS_WORK_DONE;
+        } catch (error) {
+            // a supprimer pour la prod
+            console.error('Error creating user:', getErrorMessage(error));
+
+            logger.error(
+                'Error creating user:',
+                userData.firstname,
+                userData.lastname,
+                getErrorMessage(error)
+            );
+            throw error;
+        }
+    }
+    // public async deleteUser(id: number, isDelete: boolean) {
+    //     // Logique métier pour récupérer un utilisateur par son ID
+    //     const deleted: Boolean = true;
+    //     if (isDelete === true) {
+    //         await this._userRepository.delete(id);
+    //     }
+
+    //     await this._userRepository.update(id, deleted);
+
+    //     return true;
+    // }
 
     // ... autres méthodes (getUserById, updateUser, deleteUser avec logique métier)
 }
