@@ -1,4 +1,4 @@
-import { UserRepository } from './../repositories/user.repository';
+import UserRepository  from './../repositories/user.repository';
 import { User } from '../models/User.model';
 import { IUser } from '../models/interfaces/IUser';
 import { BaseService } from './base.service';
@@ -24,6 +24,16 @@ class UserService extends BaseService {
             return users;
         } catch (error) {
             logger.error('Error in UserService.findAllUsers: %s', getErrorMessage(error));
+            throw error;
+        }
+    }
+
+    public async findUser(id: number): Promise<User | undefined> { 
+        try {
+            const user: User | undefined = await this._userRepository.findUser(id);
+            return user;
+        } catch (error) {
+            logger.error('Error in UserService.findUser: %s', getErrorMessage(error));
             throw error;
         }
     }
@@ -121,4 +131,4 @@ class UserService extends BaseService {
     // ... autres méthodes (getUserById, updateUser, deleteUser avec logique métier)
 }
 
-export default new UserService(); // Ou injectez les dépendances si vous utilisez un conteneur d'injection
+export default UserService; // Ou injectez les dépendances si vous utilisez un conteneur d'injection
