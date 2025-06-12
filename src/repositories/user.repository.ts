@@ -27,7 +27,7 @@ class UserRepository implements IUserRepository {
             const user: User | null = await User.findByPk(id);
 
             if (user === null) {
-                logger.error('User for id %d: %s wasn\'t found', id);
+                logger.error("User for id %d: %s wasn't found", id);
                 return undefined;
             }
 
@@ -136,7 +136,7 @@ class UserRepository implements IUserRepository {
             });
 
             if (helper === null) {
-                logger.error('Helper for id %d: %s wasn\'t found', id);
+                logger.error("Helper for id %d: %s wasn't found", id);
                 return undefined;
             }
             return helper;
@@ -154,7 +154,7 @@ class UserRepository implements IUserRepository {
         try {
             const student = await User.findOne({ where: { id: id, role: 'student' } });
             if (student === null) {
-                logger.error('Student for id %d: %s wasn\'t found', id);
+                logger.error("Student for id %d: %s wasn't found", id);
                 return undefined;
             }
             return student;

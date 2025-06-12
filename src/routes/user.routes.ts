@@ -1,39 +1,14 @@
 import { Router } from 'express';
 import UserController from '../controllers/user.controller';
 
-class UserRoutes {
-    public router: Router;
-    private readonly _userController;
+const userRouter = Router();
+const _userController = new UserController();
 
-    constructor() {
-        this.router = Router();
-        this._userController = new UserController();
-        this.initRoutes();
-    }
+userRouter.get('/', _userController.getAllUsers.bind(_userController));
+userRouter.get('/helpers', _userController.getAllHelpers.bind(_userController));
+userRouter.get('/helpers/:id', _userController.getHelperById.bind(_userController));
+userRouter.get('/students', _userController.getAllStudents.bind(_userController));
+userRouter.get('/students/:id', _userController.getStudentById.bind(_userController));
+userRouter.post('/', _userController.createUser.bind(_userController));
 
-    public initRoutes(): void {
-        /**
-         * à voir si cette route est utile
-         * this.router.get('/', this._userController.getAllUsers.bind(this._userController));
-         */
-        this.router.get('/id', this._userController.getUserById.bind(this._userController));
-
-        this.router.get('/helpers', this._userController.getAllHelpers.bind(this._userController));
-
-        this.router.get(
-            '/helpers/:id',
-            this._userController.getHelperById.bind(this._userController)
-        );
-        this.router.get(
-            '/students',
-            this._userController.getAllStudents.bind(this._userController)
-        );
-        this.router.get(
-            '/students/:id',
-            this._userController.getStudentById.bind(this._userController)
-        );
-        this.router.post('/', this._userController.createUser.bind(this._userController));
-    }
-}
-
-export default new UserRoutes().router;
+export default userRouter;

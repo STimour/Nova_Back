@@ -18,21 +18,21 @@ class AutController {
             const { email, password, saveConnexion } = req.body;
 
             if (!email || !password) {
-                res.status(400).send('Email and password are required');
+                res.status(400).json({ message: 'Email and password are required' });
                 return;
             }
 
             const user = await this._userService.findUserByEmail(email);
 
             if (!user) {
-                res.status(401).send('Invalid credentials');
+                res.status(401).json({ message: 'Invalid credentials' });
                 return;
             }
 
             const isPasswordValid = await this._authService.verifyPassword(user.password, password);
 
             if (!isPasswordValid) {
-                res.status(401).send('Invalid credentials');
+                res.status(401).json({ message: 'Invalid credentials' });
                 return;
             }
 
@@ -47,7 +47,7 @@ class AutController {
             return;
         } catch (error) {
             logger.error('Error in auth.controller in login: %s, %s');
-            res.status(500).send('Internal Server Error');
+            res.status(500).json({ message: 'Internal Server Error' });
             return;
         }
     }
@@ -56,20 +56,22 @@ class AutController {
         try {
             const tokenString = req.headers.authorization;
 
-            if (!(await this._authService.deactivateAuthToken(tokenString as string))) {
-                res.status(401).send('Invalid token');
+            if (!(await this._authService.desactivateAuthToken(tokenString as string))) {
+                res.status(401).json({ message: 'Internal Server Error' });
                 return;
             }
 
-            res.status(200).send('Logout successful');
+            res.status(200).json({ message: 'Logout successful' });
 
             return;
         } catch (error) {
             logger.error('Error in auth.controller in logout: %s, %s', getErrorMessage(error));
-            res.status(500).send('Internal Server Error');
+            res.status(500).json({ message: 'Internal Server Error' });
             return;
         }
     }
+
+    public async me(req: Request, res: Response): Promise<void> {}
 }
 
 export default AutController;

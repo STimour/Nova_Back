@@ -1,20 +1,10 @@
 import { Router } from 'express';
 import AuthController from '../controllers/auth.controller';
 
-class AuthRoutes {
-    private router: Router;
-    private readonly _authController;
+const authRouter = Router();
+const _authController = new AuthController();
 
-    constructor() {
-        this.router = Router();
-        this._authController = new AuthController();
-        this.initRoutes();
-    }
+authRouter.post('/login', _authController.login.bind(_authController));
+authRouter.post('/logout', _authController.logout.bind(_authController));
 
-    public initRoutes() {
-        this.router.post('/login', this._authController.login.bind(this._authController));
-        this.router.post('/logout', this._authController.logout.bind(this._authController));
-    }
-}
-
-export default AuthRoutes;
+export default authRouter;

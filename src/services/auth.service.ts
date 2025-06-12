@@ -5,6 +5,7 @@ import argon2 from 'argon2';
 import dotenv from 'dotenv';
 import { IJwtPayloadExtended } from '../typeExtends/jwt.extends';
 import logger from '../utils/logger';
+import AuthRepository from '../repositories/auth.repository';
 
 dotenv.config();
 
@@ -14,7 +15,11 @@ class AuthService {
     private readonly DEFAULT_SESSION_HOURS: number = 1; // Pour une session normale
     private readonly REMEMBER_ME_SESSION_DAYS: number = 365; // Pour "se souvenir de moi"
 
-    constructor() {
+    private readonly _authRepository: AuthRepository;
+
+    constructor(_authRepository = new AuthRepository()) {
+        this._authRepository = _authRepository;
+
         if (!process.env.JWT_SECRET) {
             throw new Error('FATAL ERROR: JWT_SECRET is not defined in environment variables.');
         }
@@ -86,22 +91,20 @@ class AuthService {
         );
 
         try {
-            const newAuthToken = await Token.create({
-                token: tokenString,
-                userId: userId,
-                // userEmail: userEmail, // Assurez-vous que votre modèle Token a bien ce champ si nécessaire
-                isActive: true,
-                expiresAt: expirationDate
-            });
+            const newAuthToken = await this._authRepository.createToken(
+                tokenString,
+                userId,
+                expirationDate
+            );
 
             if (!newAuthToken) {
-                throw new Error('Impossible de créer le token d\'authentification.');
+                throw new Error("Impossible de créer le token d'authentification.");
             }
 
             return `${this.JWT_PREFIX} ${tokenString}`;
         } catch (error) {
-            console.error('Error creating auth token:', error);
-            throw new Error('Impossible de créer le token d\'authentification.');
+            logger.error('Error creating auth token:', error);
+            throw new Error("Impossible de créer le token d'authentification.");
         }
     }
 
@@ -109,18 +112,13 @@ class AuthService {
         try {
             const now = new Date();
 
-            const token = await Token.findOne({
-                where: {
-                    token: tokenString,
-                    isActive: true
-                }
-            });
+            const token: Token | undefined = await this._authRepository.findToken(tokenString);
 
-            if (!token || !token.isActive) {
+            if (token === undefined) {
                 return false; // Token non trouvé ou inactif
             }
 
-            if (token.expiresAt && token.expiresAt < now) {
+            if ((token.expiresAt && token.expiresAt < now) || !token.isActive) {
                 return false; // Token expiré
             }
 
@@ -140,9 +138,7 @@ class AuthService {
         try {
             const parts = fullTokenString.split(' ');
             if (parts.length !== 2 || parts[0] !== this.JWT_PREFIX) {
-                console.warn(
-                    `analyseToken: Invalid token format. Expected '${this.JWT_PREFIX} <token>'`
-                );
+                logger.warn('analyseToken: Invalid token format: %s', fullTokenString);
                 return null;
             }
             const tokenString = parts[1];
@@ -180,26 +176,17 @@ class AuthService {
         }
     }
 
-    public async deactivateAuthToken(tokenString: string): Promise<boolean> {
+    public async desactivateAuthToken(tokenString: string): Promise<boolean> {
         try {
-            const [updatedCount] = await Token.update(
-                { isActive: false },
-                {
-                    where: {
-                        token: tokenString,
-                        isActive: true
-                    }
-                }
-            );
+            const isTokenDesactivated =
+                await this._authRepository.desactivateAuthToken(tokenString);
 
-            if (updatedCount === 0) {
-                throw new Error(`Token not found or already inactive: ${tokenString}`);
-            }
+            if (!isTokenDesactivated) return false;
 
-            return true; // Désactivation réussie
+            return true;
         } catch (error) {
             console.error('Error deactivating auth token:', error);
-            throw new Error('Impossible de désactiver le token d\'authentification.');
+            throw new Error("Impossible de désactiver le token d'authentification.");
         }
     }
 }
