@@ -67,4 +67,3 @@ User.init(
         timestamps: true
     }
 );
-

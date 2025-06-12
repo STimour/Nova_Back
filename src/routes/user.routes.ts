@@ -13,13 +13,13 @@ class UserRoutes {
 
     private initRoutes(): void {
         /**
-         * à voir si cette route est utile 
+         * à voir si cette route est utile
          * this.router.get('/', this._userController.getAllUsers.bind(this._userController));
-        */
+         */
         this.router.get('/id', this._userController.getUserById.bind(this._userController));
 
         this.router.get('/helpers', this._userController.getAllHelpers.bind(this._userController));
-       
+
         this.router.get(
             '/helpers/:id',
             this._userController.getHelperById.bind(this._userController)

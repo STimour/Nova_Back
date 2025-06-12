@@ -1,5 +1,5 @@
 import { NextFunction, Response } from 'express';
-import { AuthService } from '../services/auth.service';
+import AuthService from '../services/auth.service';
 import { AuthenticatedRequest } from '../typeExtends/request.extends';
 import { IJwtPayloadExtended } from '../typeExtends/jwt.extends';
 import { User } from '../models/User.model';

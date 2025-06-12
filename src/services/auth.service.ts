@@ -5,12 +5,11 @@ import argon2 from 'argon2';
 import dotenv from 'dotenv';
 import { IJwtPayloadExtended } from '../typeExtends/jwt.extends';
 
-
 dotenv.config();
 
-export class AuthService {
+class AuthService {
     private readonly JWT_SECRET: string;
-    private readonly JWT_PREFIX: string = 'Bearer';
+    private readonly JWT_PREFIX: string;
     private readonly DEFAULT_SESSION_HOURS: number = 1; // Pour une session normale
     private readonly REMEMBER_ME_SESSION_DAYS: number = 365; // Pour "se souvenir de moi"
 
@@ -19,6 +18,7 @@ export class AuthService {
             throw new Error('FATAL ERROR: JWT_SECRET is not defined in environment variables.');
         }
         this.JWT_SECRET = process.env.JWT_SECRET;
+        this.JWT_PREFIX = 'Bearer';
     }
 
     public async hashPassword(password: string): Promise<string> {
@@ -202,3 +202,5 @@ export class AuthService {
         }
     }
 }
+
+export default AuthService;
