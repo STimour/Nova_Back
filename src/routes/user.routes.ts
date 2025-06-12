@@ -11,7 +11,7 @@ class UserRoutes {
         this.initRoutes();
     }
 
-    private initRoutes(): void {
+    public initRoutes(): void {
         /**
          * à voir si cette route est utile
          * this.router.get('/', this._userController.getAllUsers.bind(this._userController));

@@ -23,7 +23,7 @@ export default [
             'max-len': ['warn', { code: 100, ignoreComments: true }],
             quotes: ['error', 'single'],
             semi: ['error', 'always'],
-            'brace-style': ['error', 'stroustrup'],
+            'brace-style': ['error', '1tbs', { allowSingleLine: true}],
             camelcase: 'warn',
             '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
             '@typescript-eslint/no-explicit-any': 'warn',

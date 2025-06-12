@@ -1,3 +1,4 @@
+import { getErrorMessage } from '../middlwares/errorHandler.middlewares';
 import AuthService from '../services/auth.service';
 import UserService from '../services/user.service';
 import logger from '../utils/logger';
@@ -38,13 +39,33 @@ class AutController {
             const token = await this._authService.createAuthToken(
                 user.id,
                 user.email,
-                saveConnexion
+                saveConnexion,
+                user.birthdate?.toISOString()
             );
 
             res.status(200).json({ token });
             return;
         } catch (error) {
             logger.error('Error in auth.controller in login: %s, %s');
+            res.status(500).send('Internal Server Error');
+            return;
+        }
+    }
+
+    public async logout(req: Request, res: Response): Promise<void> {
+        try {
+            const tokenString = req.headers.authorization;
+
+            if (!(await this._authService.deactivateAuthToken(tokenString as string))) {
+                res.status(401).send('Invalid token');
+                return;
+            }
+
+            res.status(200).send('Logout successful');
+
+            return;
+        } catch (error) {
+            logger.error('Error in auth.controller in logout: %s, %s', getErrorMessage(error));
             res.status(500).send('Internal Server Error');
             return;
         }

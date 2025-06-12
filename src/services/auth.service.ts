@@ -1,9 +1,10 @@
 // src/services/base.service.ts
 import { Token } from '../models/Token.model';
-import jwt, { JwtPayload } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import argon2 from 'argon2';
 import dotenv from 'dotenv';
 import { IJwtPayloadExtended } from '../typeExtends/jwt.extends';
+import logger from '../utils/logger';
 
 dotenv.config();
 
@@ -94,13 +95,13 @@ class AuthService {
             });
 
             if (!newAuthToken) {
-                throw new Error("Impossible de créer le token d'authentification.");
+                throw new Error('Impossible de créer le token d\'authentification.');
             }
 
             return `${this.JWT_PREFIX} ${tokenString}`;
         } catch (error) {
             console.error('Error creating auth token:', error);
-            throw new Error("Impossible de créer le token d'authentification.");
+            throw new Error('Impossible de créer le token d\'authentification.');
         }
     }
 
@@ -132,7 +133,7 @@ class AuthService {
 
     public async analyseToken(fullTokenString: string): Promise<IJwtPayloadExtended | null> {
         if (!fullTokenString || typeof fullTokenString !== 'string') {
-            console.warn('analyseToken: fullTokenString is missing or not a string');
+            logger.warn('analyseToken: fullTokenString is missing or not a string');
             return null;
         }
 
@@ -198,7 +199,7 @@ class AuthService {
             return true; // Désactivation réussie
         } catch (error) {
             console.error('Error deactivating auth token:', error);
-            throw new Error("Impossible de désactiver le token d'authentification.");
+            throw new Error('Impossible de désactiver le token d\'authentification.');
         }
     }
 }
