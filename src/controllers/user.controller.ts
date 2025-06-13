@@ -133,27 +133,6 @@ class UserController {
         }
     }
 
-    public async createUser(req: Request, res: Response): Promise<void> {
-        try {
-            let estInscrit: boolean;
-
-            const newUser: IUser = req.body;
-
-            estInscrit = await this._userService.createUser(newUser);
-
-            if (!estInscrit) {
-                res.status(400).json({ message: 'Error creating user' });
-                return;
-            }
-            res.status(201).json(newUser);
-            return;
-        } catch (error) {
-            logger.error('Error in createUser controller: %s', getErrorMessage(error));
-            res.status(500).json({ message: 'Error creating user' });
-            return;
-        }
-    }
-
     // public async deleteUser(req: Request, res: Response): Promise<void> {
     //     try {
     //         const userId = parseInt(req.params.id);

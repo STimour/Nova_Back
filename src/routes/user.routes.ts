@@ -9,6 +9,6 @@ userRouter.get('/helpers', _userController.getAllHelpers.bind(_userController));
 userRouter.get('/helpers/:id', _userController.getHelperById.bind(_userController));
 userRouter.get('/students', _userController.getAllStudents.bind(_userController));
 userRouter.get('/students/:id', _userController.getStudentById.bind(_userController));
-userRouter.post('/', _userController.createUser.bind(_userController));
+
 
 export default userRouter;
