@@ -4,6 +4,8 @@ import { AuthenticatedRequest } from '../typeExtends/request.extends';
 import { IJwtPayloadExtended } from '../typeExtends/jwt.extends';
 import { User } from '../models/User.model';
 import { getErrorMessage } from './errorHandler.middlewares';
+import logger from '../utils/logger';
+import ErrorMessages from '../utils/error.messages';
 
 export class MiddlewareService {
     private readonly _authService: AuthService;
@@ -16,19 +18,23 @@ export class MiddlewareService {
         req: AuthenticatedRequest,
         res: Response,
         next: NextFunction
-    ): Promise<void | Response> {
+    ): Promise<void> {
         const fullToken: string | undefined = req.headers.authorization;
 
         if (!fullToken || typeof fullToken !== 'string') {
-            return res.status(401).json({ error: 'Authorization header is missing or invalid.' });
+            logger.warn(ErrorMessages.missingAuth(), fullToken ?? '');
+            res.status(401).json({ error: ErrorMessages.missingAuth() });
+            return;
         }
 
         try {
             const decodedPayload: IJwtPayloadExtended | null =
-                await this._authService.analyseToken(fullToken);
+                await this._authService.decodePayload(fullToken);
 
             if (decodedPayload === null) {
-                return res.status(401).json({ error: 'Invalid, expired, or unauthorized token.' });
+                logger.warn(ErrorMessages.invalidToken(), fullToken);
+                res.status(401).json({ error: ErrorMessages.invalidToken() });
+                return;
             }
 
             const whereClause: Record<string, any> = {
@@ -40,14 +46,12 @@ export class MiddlewareService {
                 })
             };
 
-            const userRecord = await User.findOne({
-                where: whereClause
-            });
+            const userRecord = await User.findOne({ where: whereClause });
 
             if (!userRecord) {
-                return res.status(403).json({
-                    error: 'Forbidden. User associated with the token not found or inactive.'
-                });
+                logger.warn(ErrorMessages.forbidden(), JSON.stringify(whereClause));
+                res.status(403).json({ error: ErrorMessages.forbidden() });
+                return;
             }
 
             req.user = userRecord;
@@ -56,13 +60,10 @@ export class MiddlewareService {
             next();
         } catch (error: unknown) {
             const errorMessage = getErrorMessage(error);
-            console.error('Unexpected error in checkToken middleware:', error);
-            if (!res.headersSent) {
-                return res.status(500).json({
-                    error: 'Internal server error during token verification.',
-                    details: errorMessage
-                });
-            }
+            logger.error(ErrorMessages.internal(), errorMessage);
+            res.status(500).json({
+                error: ErrorMessages.internal()
+            });
         }
     }
 }

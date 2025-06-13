@@ -1,13 +1,11 @@
-'use strict';
-var __importDefault =
-    (this && this.__importDefault) ||
-    function (mod) {
-        return mod && mod.__esModule ? mod : { default: mod };
-    };
-Object.defineProperty(exports, '__esModule', { value: true });
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
 exports.errorHandler = errorHandler;
 exports.getErrorMessage = getErrorMessage;
-const logger_1 = __importDefault(require('../utils/logger'));
+const logger_1 = __importDefault(require("../utils/logger"));
 function errorHandler(err, req, res, next) {
     const statusCode = err.status || 500;
     const errorMessageForLog = getErrorMessage(err);
@@ -27,6 +25,7 @@ function errorHandler(err, req, res, next) {
     res.status(statusCode).json({ error: clientErrorMessage });
 }
 function getErrorMessage(error) {
-    if (error instanceof Error) return error.message;
+    if (error instanceof Error)
+        return error.message;
     return String(error);
 }
