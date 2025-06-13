@@ -133,31 +133,19 @@ class UserController {
         }
     }
 
-    // public async deleteUser(req: Request, res: Response): Promise<void> {
-    //     try {
-    //         const userId = parseInt(req.params.id);
+    public async deleteUser(req: Request, res: Response): Promise<void> {
+    try{
 
-    //         const isDelete = req.body;
-
-    //         if (isNaN(userId)) {
-    //             res.status(500).json({ error: 'Erreur interne du serveur' });
-    //         }
-    //         // Trouver l'utilisateur
-    //         const user = await userService.deleteUser(userId, isDelete);
-
-    //         if (!user) {
-    //             res.status(400).json({ error: 'Une erreur est survenue lors de la suppression' });
-    //             return;
-    //         }
-
-    //         res.status(200).json({ message: 'Utilisateur supprimé "lg"' });
-    //         return;
-    //     } catch (error) {
-    //         console.error("Erreur lors de la suppression de l'utilisateur :", error);
-    //         res.status(500).json({ error: 'Erreur interne du serveur' });
-    //         return;
-    //     }
-    // }
+    }catch (error) {
+            logger.error(
+                'Error in deleteUser controller for ID %s: %s',
+                
+                getErrorMessage(error)
+            );
+            res.status(500).json({ message: 'Error fetching student' });
+            return;
+        }
+    }
 }
 
 export default UserController;

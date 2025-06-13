@@ -51,9 +51,7 @@ class AuthService {
         saveConnexion: boolean,
         userBirthdate?: string
     ): Promise<string> {
-        // La vérification de JWT_SECRET est maintenant dans le constructeur
         if (!this.JWT_SECRET) {
-            // Garder une vérification par sécurité, bien que le constructeur doive l'attraper
             throw new Error('JWT_SECRET is not configured. Cannot create token.');
         }
 
@@ -129,18 +127,14 @@ class AuthService {
         }
     }
 
-    public async analyseToken(fullTokenString: string): Promise<IJwtPayloadExtended | null> {
+    public async decodePayload(fullTokenString: string): Promise<IJwtPayloadExtended | null> {
         if (!fullTokenString || typeof fullTokenString !== 'string') {
-            logger.warn('analyseToken: fullTokenString is missing or not a string');
+            logger.warn('decodePayload: fullTokenString is missing or not a string');
             return null;
         }
 
         try {
-            const parts = fullTokenString.split(' ');
-            if (parts.length !== 2 || parts[0] !== this.JWT_PREFIX) {
-                logger.warn('analyseToken: Invalid token format: %s', fullTokenString);
-                return null;
-            }
+            const parts = this.splitToken(fullTokenString);
             const tokenString = parts[1];
 
             let decodedPayload: IJwtPayloadExtended;
@@ -148,7 +142,7 @@ class AuthService {
                 decodedPayload = jwt.verify(tokenString, this.JWT_SECRET) as IJwtPayloadExtended;
             } catch (jwtError: any) {
                 console.warn(
-                    `analyseToken: JWT verification failed - ${jwtError.name}: ${jwtError.message}`
+                    `decodePayload: JWT verification failed - ${jwtError.name}: ${jwtError.message}`
                 );
                 return null;
             }
@@ -162,8 +156,8 @@ class AuthService {
             });
 
             if (!tokenRecord) {
-                console.warn(
-                    'analyseToken: Token not found in DB, is inactive, or userId mismatch.'
+                logger.warn(
+                    'decodePayload: Token not found in DB, is inactive, or userId mismatch.'
                 );
                 return null;
             }
@@ -175,11 +169,11 @@ class AuthService {
             return null;
         }
     }
-
     public async desactivateAuthToken(tokenString: string): Promise<boolean> {
         try {
-            const isTokenDesactivated =
-                await this._authRepository.desactivateAuthToken(tokenString);
+            const token = this.splitToken(tokenString);
+
+            const isTokenDesactivated = await this._authRepository.desactivateAuthToken(token);
 
             if (!isTokenDesactivated) return false;
 
@@ -188,6 +182,14 @@ class AuthService {
             console.error('Error deactivating auth token:', error);
             throw new Error("Impossible de désactiver le token d'authentification.");
         }
+    }
+
+    private splitToken(fullTokenString: string): string {
+        const parts = fullTokenString.split(' ');
+        if (parts.length === 2 && parts[0] === this.JWT_PREFIX) {
+            return parts[1];
+        }
+        return '';
     }
 }
 

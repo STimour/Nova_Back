@@ -1,0 +1,2 @@
+{"level":"error","message":"Error while desactivateAuthToken, token: , was not found","timestamp":"2025-06-13T14:22:30.660Z"}
+{"level":"error","message":"Internal server error during token verification. Cannot read properties of undefined (reading '_authService')","timestamp":"2025-06-13T14:24:49.986Z"}

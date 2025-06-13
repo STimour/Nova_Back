@@ -14,7 +14,7 @@ class AutController {
         this._userService = new UserService();
     }
 
- public async createUser(req: Request, res: Response): Promise<void> {
+    public async createUser(req: Request, res: Response): Promise<void> {
         try {
             let estInscrit: boolean;
 
@@ -34,7 +34,6 @@ class AutController {
             return;
         }
     }
-
 
     public async login(req: Request, res: Response): Promise<void> {
         try {
@@ -95,8 +94,6 @@ class AutController {
     }
 
     public async me(req: Request, res: Response): Promise<void> {}
-
-
 }
 
 export default AutController;

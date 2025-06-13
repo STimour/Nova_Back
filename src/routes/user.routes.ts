@@ -10,5 +10,4 @@ userRouter.get('/helpers/:id', _userController.getHelperById.bind(_userControlle
 userRouter.get('/students', _userController.getAllStudents.bind(_userController));
 userRouter.get('/students/:id', _userController.getStudentById.bind(_userController));
 
-
 export default userRouter;

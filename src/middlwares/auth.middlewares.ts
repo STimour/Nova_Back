@@ -29,7 +29,7 @@ export class MiddlewareService {
 
         try {
             const decodedPayload: IJwtPayloadExtended | null =
-                await this._authService.analyseToken(fullToken);
+                await this._authService.decodePayload(fullToken);
 
             if (decodedPayload === null) {
                 logger.warn(ErrorMessages.invalidToken(), fullToken);
