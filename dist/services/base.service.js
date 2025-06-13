@@ -5,10 +5,6 @@ class BaseService {
     constructor() {
         this.IS_WORK_DONE = true;
     }
-    hashPassword(password) {
-        const hashedPassword = '';
-        return hashedPassword;
-    }
     verifyUserData(userData) {
         let isUserDataValid = true;
         if (!userData.password ||

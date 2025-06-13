@@ -12,7 +12,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UserRepository = void 0;
 const Availability_model_1 = require("./../models/Availability.model");
 const Reputation_model_1 = require("./../models/Reputation.model");
 const User_model_1 = require("../models/User.model");
@@ -20,7 +19,7 @@ const logger_1 = __importDefault(require("../utils/logger"));
 const errorHandler_middlewares_1 = require("../middlwares/errorHandler.middlewares");
 class UserRepository {
     constructor() {
-        this.USER_NOT_FOUND = true;
+        this.USER_FOUND = true;
     }
     findAllUsers() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -30,6 +29,39 @@ class UserRepository {
             catch (error) {
                 logger_1.default.error('Error in UserRepository.findAllUsers: %s', (0, errorHandler_middlewares_1.getErrorMessage)(error));
                 throw error;
+            }
+        });
+    }
+    findUser(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const user = yield User_model_1.User.findByPk(id);
+                if (user === null) {
+                    logger_1.default.error("User for id %d: %s wasn't found", id);
+                    return undefined;
+                }
+                return user;
+            }
+            catch (error) {
+                logger_1.default.error('Error in UserRepository.findUser: %s', (0, errorHandler_middlewares_1.getErrorMessage)(error));
+                throw error;
+            }
+        });
+    }
+    findUserByEmail(email) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const user = yield User_model_1.User.findOne({
+                    where: { email: email }
+                });
+                if (user === null) {
+                    return undefined;
+                }
+                return user;
+            }
+            catch (error) {
+                logger_1.default.error('Error in UserRepository.findUserByEmail: %s', (0, errorHandler_middlewares_1.getErrorMessage)(error));
+                return undefined;
             }
         });
     }
@@ -49,9 +81,7 @@ class UserRepository {
             try {
                 return yield User_model_1.User.findAll({
                     where: { role: 'helper' },
-                    include: [
-                        { model: Reputation_model_1.Reputation, as: 'reputations' }
-                    ]
+                    include: [{ model: Reputation_model_1.Reputation, as: 'reputations' }]
                 });
             }
             catch (error) {
@@ -67,8 +97,8 @@ class UserRepository {
                     where: { email: email, firstname: firstname, deleted }
                 });
                 if (user !== null)
-                    return !this;
-                return false;
+                    return this.USER_FOUND;
+                return !this.USER_FOUND;
             }
             catch (error) {
                 logger_1.default.error('Error in UserRepository.verifyUserBeforeInscription for %s %s: %s', firstname, email, (0, errorHandler_middlewares_1.getErrorMessage)(error));
@@ -131,4 +161,4 @@ class UserRepository {
         });
     }
 }
-exports.UserRepository = UserRepository;
+exports.default = UserRepository;

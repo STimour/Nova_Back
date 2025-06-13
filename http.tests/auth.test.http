@@ -1,0 +1,40 @@
+###
+#Tests auth.routes
+###
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInVzZXJFbWFpbCI6ImpvaG4uZG9lQGV4YW1wbGUuY29tIiwidXNlckJpcnRoZGF0ZSI6IjE5OTAtMDEtMDFUMDA6MDA6MDAuMDAwWiIsImlhdCI6MTc0OTgyNDUzMywiZXhwIjoxNzgxMzYwNTMzfQ.zP1MfUFuygY53rNZkRF4PyJ7AW8B_BXRz8CYO2ILE1k
+
+POST http://localhost:3000/api/auth/inscription
+Content-Type: application/json
+
+{
+  "firstname": "John",
+  "lastname": "Doe",
+  "email": "john.doe@example.com",
+  "password": "Password123!",
+  "sexe": "M",
+  "birthdate": "1990-01-01",
+  "role": "student"
+}
+
+###
+# Login
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.com",
+  "password": "Password123!",
+  "saveConnexion": true
+}
+
+###
+# Logout
+POST http://localhost:3000/api/auth/logout
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+###
+# helpers
+GET http://localhost:3000/api/users/helpers
+Content-Type: application/json
+Authorization: Bearer {{token}}

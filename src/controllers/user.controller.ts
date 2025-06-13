@@ -14,7 +14,7 @@ class UserController {
     public async getAllUsers(req: Request, res: Response): Promise<void> {
         try {
             const users = await this._userService.findAllUsers();
-            if(users.length === 0){
+            if (users.length === 0) {
                 logger.warn('No users found');
                 res.status(404).json({ message: 'No users found' });
                 return;
@@ -45,12 +45,15 @@ class UserController {
             res.status(200).json(user);
             return;
         } catch (error) {
-            logger.error('Error in getUserById controller for ID %s: %s', req.params.id, getErrorMessage(error));
+            logger.error(
+                'Error in getUserById controller for ID %s: %s',
+                req.params.id,
+                getErrorMessage(error)
+            );
             res.status(500).json({ message: 'Error fetching user' });
             return;
         }
     }
-
 
     public async getAllHelpers(req: Request, res: Response): Promise<void> {
         try {
@@ -81,7 +84,11 @@ class UserController {
             res.status(200).json(helper);
             return;
         } catch (error) {
-            logger.error('Error in getHelperById controller for ID %s: %s', req.params.id, getErrorMessage(error));
+            logger.error(
+                'Error in getHelperById controller for ID %s: %s',
+                req.params.id,
+                getErrorMessage(error)
+            );
             res.status(500).json({ message: 'Error fetching helper' });
             return;
         }
@@ -116,58 +123,29 @@ class UserController {
             res.status(200).json(student);
             return;
         } catch (error) {
-            logger.error('Error in getStudentById controller for ID %s: %s', req.params.id, getErrorMessage(error));
+            logger.error(
+                'Error in getStudentById controller for ID %s: %s',
+                req.params.id,
+                getErrorMessage(error)
+            );
             res.status(500).json({ message: 'Error fetching student' });
             return;
         }
     }
 
-    public async createUser(req: Request, res: Response): Promise<void> {
-        try {
-            let estInscrit: boolean;
+    public async deleteUser(req: Request, res: Response): Promise<void> {
+    try{
 
-            const newUser: IUser = req.body;
-
-            estInscrit = await this._userService.createUser(newUser);
-
-            if (!estInscrit) {
-                res.status(400).json({ message: 'Error creating user' });
-                return;
-            }
-            res.status(201).json(newUser);
-            return;
-        } catch (error) {
-            logger.error('Error in createUser controller: %s', getErrorMessage(error));
-            res.status(500).json({ message: 'Error creating user' });
+    }catch (error) {
+            logger.error(
+                'Error in deleteUser controller for ID %s: %s',
+                
+                getErrorMessage(error)
+            );
+            res.status(500).json({ message: 'Error fetching student' });
             return;
         }
     }
-
-    // public async deleteUser(req: Request, res: Response): Promise<void> {
-    //     try {
-    //         const userId = parseInt(req.params.id);
-
-    //         const isDelete = req.body;
-
-    //         if (isNaN(userId)) {
-    //             res.status(500).json({ error: 'Erreur interne du serveur' });
-    //         }
-    //         // Trouver l'utilisateur
-    //         const user = await userService.deleteUser(userId, isDelete);
-
-    //         if (!user) {
-    //             res.status(400).json({ error: 'Une erreur est survenue lors de la suppression' });
-    //             return;
-    //         }
-
-    //         res.status(200).json({ message: 'Utilisateur supprimé "lg"' });
-    //         return;
-    //     } catch (error) {
-    //         console.error("Erreur lors de la suppression de l'utilisateur :", error);
-    //         res.status(500).json({ error: 'Erreur interne du serveur' });
-    //         return;
-    //     }
-    // }
 }
 
 export default UserController;

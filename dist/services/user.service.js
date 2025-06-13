@@ -12,14 +12,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const user_repository_1 = require("./../repositories/user.repository");
+const user_repository_1 = __importDefault(require("./../repositories/user.repository"));
+const auth_service_1 = __importDefault(require("./../services/auth.service"));
 const base_service_1 = require("./base.service");
 const errorHandler_middlewares_1 = require("../middlwares/errorHandler.middlewares");
 const logger_1 = __importDefault(require("../utils/logger"));
 class UserService extends base_service_1.BaseService {
     constructor() {
         super();
-        this._userRepository = new user_repository_1.UserRepository();
+        this._userRepository = new user_repository_1.default();
+        this._authService = new auth_service_1.default();
         this.IS_USER_DATA_VALID = true;
         this.IS_NEW_USER = true;
     }
@@ -32,6 +34,34 @@ class UserService extends base_service_1.BaseService {
             catch (error) {
                 logger_1.default.error('Error in UserService.findAllUsers: %s', (0, errorHandler_middlewares_1.getErrorMessage)(error));
                 throw error;
+            }
+        });
+    }
+    findUser(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const user = yield this._userRepository.findUser(id);
+                return user;
+            }
+            catch (error) {
+                logger_1.default.error('Error in UserService.findUser: %s', (0, errorHandler_middlewares_1.getErrorMessage)(error));
+                throw error;
+            }
+        });
+    }
+    findUserByEmail(email) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const user = yield this._userRepository.findUserByEmail(email);
+                if (user === undefined) {
+                    logger_1.default.info('User not found: %s', email);
+                    return undefined;
+                }
+                return user;
+            }
+            catch (error) {
+                logger_1.default.error('Error in UserService.findUserByEmail: %s; %s', email, (0, errorHandler_middlewares_1.getErrorMessage)(error));
+                return undefined;
             }
         });
     }
@@ -89,7 +119,8 @@ class UserService extends base_service_1.BaseService {
             try {
                 if (!this.verifyUserData(userData))
                     return !this.IS_USER_DATA_VALID;
-                userData.password = this.hashPassword(userData.password);
+                const password = this._authService.hashPassword(userData.password);
+                userData.password = (yield password).toString();
                 const isUserExists = yield this._userRepository.isUserExists(userData.email, userData.firstname);
                 if (isUserExists) {
                     logger_1.default.warn('User already exists', userData.firstname, userData.lastname);
@@ -111,4 +142,4 @@ class UserService extends base_service_1.BaseService {
         });
     }
 }
-exports.default = new UserService(); // Ou injectez les dépendances si vous utilisez un conteneur d'injection
+exports.default = UserService; // Ou injectez les dépendances si vous utilisez un conteneur d'injection

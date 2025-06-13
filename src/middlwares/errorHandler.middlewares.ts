@@ -13,7 +13,7 @@ export function errorHandler(
 ): void {
     const statusCode = err.status || 500;
     const errorMessageForLog = getErrorMessage(err);
-    
+
     // Log détaillé incluant la stack trace si disponible
     let logMessage = `[${statusCode}] ${req.method} ${req.path} - Message: ${errorMessageForLog}`;
     if (err.stack) {

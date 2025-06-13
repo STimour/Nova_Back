@@ -1,0 +1,2 @@
+{"level":"error","message":"Error in UserRepository.findAllHelpers: Reputation is associated to User using an alias. You've included an alias (Reputation), but it does not match the alias(es) defined in your association (reputations).","timestamp":"2025-06-11T19:59:19.086Z"}
+{"level":"error","message":"Error in UserService.getAllHelpers: Reputation is associated to User using an alias. You've included an alias (Reputation), but it does not match the alias(es) defined in your association (reputations).","timestamp":"2025-06-11T19:59:19.089Z"}

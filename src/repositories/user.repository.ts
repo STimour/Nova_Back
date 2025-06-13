@@ -22,24 +22,38 @@ class UserRepository implements IUserRepository {
         }
     }
 
-     public async findUser(id: number): Promise<User | undefined> {
-        try{
+    public async findUser(id: number): Promise<User | undefined> {
+        try {
             const user: User | null = await User.findByPk(id);
 
-            if(user === null){
+            if (user === null) {
                 logger.error("User for id %d: %s wasn't found", id);
                 return undefined;
             }
 
-            return user
-
-        }catch (error)
-        {
+            return user;
+        } catch (error) {
             logger.error('Error in UserRepository.findUser: %s', getErrorMessage(error));
             throw error;
         }
-     }
+    }
 
+    public async findUserByEmail(email: string): Promise<User | undefined> {
+        try {
+            const user: User | null = await User.findOne({
+                where: { email: email }
+            });
+
+            if (user === null) {
+                return undefined;
+            }
+
+            return user;
+        } catch (error) {
+            logger.error('Error in UserRepository.findUserByEmail: %s', getErrorMessage(error));
+            return undefined;
+        }
+    }
 
     public async findAllStudents(): Promise<User[]> {
         try {
@@ -54,9 +68,7 @@ class UserRepository implements IUserRepository {
         try {
             return await User.findAll({
                 where: { role: 'helper' },
-                include: [
-                    { model: Reputation, as: 'reputations' }
-                ]
+                include: [{ model: Reputation, as: 'reputations' }]
             });
         } catch (error) {
             logger.error('Error in UserRepository.findAllHelpers: %s', getErrorMessage(error));
@@ -159,4 +171,4 @@ class UserRepository implements IUserRepository {
     // TODO la suppression logique et la mise à jour des profils
 }
 
-export default UserRepository; 
+export default UserRepository;
