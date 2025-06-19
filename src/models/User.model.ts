@@ -54,6 +54,10 @@ User.init(
             type: DataTypes.STRING,
             allowNull: false
         },
+        superHelper: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false
+        },
         deleted: {
             type: DataTypes.BOOLEAN,
             allowNull: false,
