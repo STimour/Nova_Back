@@ -7,6 +7,8 @@ import { getErrorMessage } from '../middlwares/errorHandler.middlewares';
 import logger from '../utils/logger';
 import { IUserToDelete } from '../models/interfaces/IUserToDelete.interface';
 import ErrorMessages from '../utils/error.messages';
+import { ReputationHistoryService } from './reputationHistory.service';
+
 
 class UserService extends BaseService {
     private readonly IS_USER_DATA_VALID: boolean;
@@ -63,23 +65,44 @@ class UserService extends BaseService {
         }
     }
 
-    public async getAllHelpers(): Promise<User[] | undefined> {
+    /**
+     * Retourne tous les helpers avec leur note hebdomadaire.
+     */
+    public async getAllHelpers(): Promise<any[]> {
         try {
-            const helpers: User[] | undefined = await this._userRepository.findAllHelpers();
-            if(helpers === undefined){
-                return undefined;
-            }
-            return helpers;
+            const helpers: User[] = await this._userRepository.findAllHelpers();
+            const reputationHistoryService = new ReputationHistoryService();
+        
+            // Ajoute la note de la semaine à chaque helper
+            const helpersWithNote = await Promise.all(
+                helpers.map(async (helper) => {
+                    const noteSemaine = await reputationHistoryService.getLastWeeklyNote(helper.id);
+                    return {
+                        ...helper.toJSON(),
+                        noteSemaine: Number(noteSemaine.toFixed(2))
+                    };
+                })
+            );
+            return helpersWithNote;
         } catch (error) {
             logger.error('Error in UserService.getAllHelpers: %s', getErrorMessage(error));
             throw error;
         }
     }
 
-    public async findHelper(id: number): Promise<User | undefined> {
+    /**
+     * Retourne un helper avec sa note hebdomadaire.
+     */
+    public async findHelper(id: number): Promise<any | undefined> {
         try {
             const helper: User | undefined = await this._userRepository.findHelper(id);
-            return helper;
+            if (!helper) return undefined;
+            const reputationHistoryService = new ReputationHistoryService();
+            const noteSemaine = await reputationHistoryService.getLastWeeklyNote(helper.id);
+            return {
+                ...helper.toJSON(),
+                noteSemaine: Number(noteSemaine.toFixed(2))
+            };
         } catch (error) {
             logger.error('Error in UserService.findHelper: %s', getErrorMessage(error));
             throw error;

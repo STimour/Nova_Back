@@ -141,5 +141,16 @@ class UserController {
             }
         });
     }
+    deleteUser(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+            }
+            catch (error) {
+                logger_1.default.error('Error in deleteUser controller for ID %s: %s', (0, errorHandler_middlewares_1.getErrorMessage)(error));
+                res.status(500).json({ message: 'Error fetching student' });
+                return;
+            }
+        });
+    }
 }
 exports.default = UserController;
