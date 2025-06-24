@@ -1,12 +1,13 @@
-import { Request, Response } from "express";
+// import { Request, Response } from "express";
 
-class DispoController {
-    constructor() {}
+// class DispoController {
+//     constructor() {}
 
-    public async getAllHelperDispos(req: Request, res: Response): Promise<void> {
+//     public async getAllHelperDispos(req: Request, res: Response): Promise<void> {
 
-        const dispo
+//         const dispo
 
 
-    }
-}
+//     }
+// }
+
