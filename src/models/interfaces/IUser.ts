@@ -15,10 +15,11 @@ export interface IUser {
     deleted: boolean;
     createdAt: Date;
     updatedAt: Date;
-    Reputation: Reputation;
-    Availability: Availability;
+    Reputation?: Reputation;
+    Availability?: Availability;
 }
 
 // Définis les attributs nécessaires à la création
 export interface UserCreationAttributes
     extends Optional<IUser, 'id' | 'createdAt' | 'updatedAt' | 'deleted'> {}
+

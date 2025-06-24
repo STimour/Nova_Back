@@ -5,6 +5,8 @@ import { IUser } from '../models/interfaces/IUser';
 import { BaseService } from './base.service';
 import { getErrorMessage } from '../middlwares/errorHandler.middlewares';
 import logger from '../utils/logger';
+import { IUserToDelete } from '../models/interfaces/IUserToDelete.interface';
+import ErrorMessages from '../utils/error.messages';
 
 class UserService extends BaseService {
     private readonly IS_USER_DATA_VALID: boolean;
@@ -21,9 +23,10 @@ class UserService extends BaseService {
         this.IS_NEW_USER = true;
     }
 
-    public async findAllUsers(): Promise<User[]> {
+    public async findAllUsers(): Promise<User[] | undefined> {
         try {
-            const users: User[] = await this._userRepository.findAllUsers();
+            const users: User[] | undefined = await this._userRepository.findAllUsers();
+            if(users === undefined) return undefined;
             return users;
         } catch (error) {
             logger.error('Error in UserService.findAllUsers: %s', getErrorMessage(error));
@@ -31,9 +34,10 @@ class UserService extends BaseService {
         }
     }
 
-    public async findUser(id: number): Promise<User | undefined> {
+    public async findUser(id: number): Promise<User | null> {
         try {
-            const user: User | undefined = await this._userRepository.findUser(id);
+            const user: User | null = await this._userRepository.findUser(id);
+            if(user === null) return null;
             return user;
         } catch (error) {
             logger.error('Error in UserService.findUser: %s', getErrorMessage(error));
@@ -59,9 +63,12 @@ class UserService extends BaseService {
         }
     }
 
-    public async getAllHelpers(): Promise<User[]> {
+    public async getAllHelpers(): Promise<User[] | undefined> {
         try {
-            const helpers: User[] = await this._userRepository.findAllHelpers();
+            const helpers: User[] | undefined = await this._userRepository.findAllHelpers();
+            if(helpers === undefined){
+                return undefined;
+            }
             return helpers;
         } catch (error) {
             logger.error('Error in UserService.getAllHelpers: %s', getErrorMessage(error));
@@ -79,9 +86,13 @@ class UserService extends BaseService {
         }
     }
 
-    public async findAllStudents(): Promise<User[]> {
+    public async findAllStudents(): Promise<User[] | undefined> {
         try {
-            const students: User[] = await this._userRepository.findAllStudents();
+            const students: User[] | undefined = await this._userRepository.findAllStudents();
+
+            if( students === undefined){
+                return undefined
+            }
             return students;
         } catch (error) {
             logger.error('Error in UserService.findAllStudents: %s', getErrorMessage(error));
@@ -138,19 +149,26 @@ class UserService extends BaseService {
             throw error;
         }
     }
-    // public async deleteUser(id: number, isDelete: boolean) {
-    //     // Logique métier pour récupérer un utilisateur par son ID
-    //     const deleted: Boolean = true;
-    //     if (isDelete === true) {
-    //         await this._userRepository.delete(id);
-    //     }
 
-    //     await this._userRepository.update(id, deleted);
+    public async deleteUser(userToDelete: IUserToDelete): Promise<boolean> {
+         const user = await this._userRepository.findUser(parseInt(userToDelete.id), false);
 
-    //     return true;
-    // }
+        if(user === null){
+            logger.error(ErrorMessages.notFound(),
+            userToDelete.id);
+            return false;
+        }
+        if(!userToDelete.toDelete){
+        await this._userRepository.deleteLogically(userToDelete.id);
 
-    // ... autres méthodes (getUserById, updateUser, deleteUser avec logique métier)
+
+        return true;
+    }
+
+        if(!await this._userRepository.deleteLogically(userToDelete.id)) return false;
+
+        return true;
+    }
 }
 
 export default UserService; // Ou injectez les dépendances si vous utilisez un conteneur d'injection

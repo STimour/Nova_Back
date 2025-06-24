@@ -6,19 +6,19 @@ export interface IUserRepository {
      * Récupère tous les utilisateurs.
      * @returns Promise contenant la liste des utilisateurs.
      */
-    findAllUsers(): Promise<User[]>;
+    findAllUsers(): Promise<User[] | undefined>;
 
     /**
      * Récupère tous les utilisateurs ayant le rôle 'student'.
      * @returns Promise contenant la liste des étudiants.
      */
-    findAllStudents(): Promise<User[]>;
+    findAllStudents(): Promise<User[] | undefined>;
 
     /**
      * Récupère tous les utilisateurs ayant le rôle 'helper'.
      * @returns Promise contenant la liste des helpers.
      */
-    findAllHelpers(): Promise<User[]>;
+    findAllHelpers(): Promise<User[] | undefined>;
 
     /**
      * Recherche un utilisateur par email, prénom et statut de suppression.

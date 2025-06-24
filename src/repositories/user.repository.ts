@@ -5,6 +5,7 @@ import { User } from '../models/User.model';
 import logger from '../utils/logger';
 import { IUserRepository } from './interfaces/IUserRepository';
 import { getErrorMessage } from '../middlwares/errorHandler.middlewares';
+import ErrorMessages from '../utils/error.messages';
 
 class UserRepository implements IUserRepository {
     private readonly USER_FOUND: boolean;
@@ -13,28 +14,40 @@ class UserRepository implements IUserRepository {
         this.USER_FOUND = true;
     }
 
-    public async findAllUsers(): Promise<User[]> {
+    public async findAllUsers(): Promise<User[] | undefined> {
         try {
-            return await User.findAll();
+            const users = await User.findAll();
+            if(!users || users.length === 0){
+                logger.warn(ErrorMessages.errorFetchingUsers())
+                return undefined;
+            }
+            return users
         } catch (error) {
             logger.error('Error in UserRepository.findAllUsers: %s', getErrorMessage(error));
-            throw error;
+            return undefined;
         }
     }
 
-    public async findUser(id: number): Promise<User | undefined> {
+    public async findUser(id: number, deleted?: boolean): Promise<User | null> {
         try {
-            const user: User | null = await User.findByPk(id);
+            const whereClause: any = { id: id };
+            if (typeof deleted !== 'undefined') {
+                whereClause.deleted = deleted;
+            }
+
+            const user: User | null = await User.findOne({
+                where: whereClause
+            });
 
             if (user === null) {
                 logger.error("User for id %d: %s wasn't found", id);
-                return undefined;
+                return null;
             }
 
             return user;
         } catch (error) {
             logger.error('Error in UserRepository.findUser: %s', getErrorMessage(error));
-            throw error;
+            return null;
         }
     }
 
@@ -55,24 +68,30 @@ class UserRepository implements IUserRepository {
         }
     }
 
-    public async findAllStudents(): Promise<User[]> {
+    public async findAllStudents(): Promise<User[] | undefined> {
         try {
             return await User.findAll({ where: { role: 'student' } });
         } catch (error) {
             logger.error('Error in UserRepository.findAllStudents: %s', getErrorMessage(error));
-            throw error;
+            return undefined;
         }
     }
-
-    public async findAllHelpers(): Promise<User[]> {
+    public async findAllHelpers(): Promise<User[] | undefined> {
         try {
-            return await User.findAll({
+            const users = await User.findAll({
                 where: { role: 'helper' },
                 include: [{ model: Reputation, as: 'reputations' }]
             });
+
+            if (!users || users.length === 0) {
+                logger.error("No helpers were found");
+                return undefined;
+            }
+
+            return users;
         } catch (error) {
             logger.error('Error in UserRepository.findAllHelpers: %s', getErrorMessage(error));
-            throw error;
+            return undefined;
         }
     }
 
@@ -96,7 +115,7 @@ class UserRepository implements IUserRepository {
                 email,
                 getErrorMessage(error)
             );
-            throw error;
+            return this.USER_FOUND;
         }
     }
 
@@ -121,7 +140,7 @@ class UserRepository implements IUserRepository {
                 user.lastname,
                 getErrorMessage(error)
             );
-            throw error;
+            return false;
         }
     }
 
@@ -146,7 +165,7 @@ class UserRepository implements IUserRepository {
                 id,
                 getErrorMessage(error)
             );
-            throw error;
+            return undefined;
         }
     }
 
@@ -164,11 +183,53 @@ class UserRepository implements IUserRepository {
                 id,
                 getErrorMessage(error)
             );
-            throw error;
+            return undefined;
         }
     }
 
-    // TODO la suppression logique et la mise à jour des profils
+    public async deleteLogically(id: string): Promise<boolean> {
+        try{
+            const whereClause: any = { id: id, deleted: false };
+            const [affectedRows] = await User.update(
+                { deleted: true },
+                { where: { whereClause }}
+            );
+
+            if (affectedRows === 0) {
+                logger.warn(ErrorMessages.invalidUserId(), id);
+                return false;
+            }
+
+            return true;
+
+        }catch (error){
+            logger.error(
+                ErrorMessages.internalServerError(),
+                id,
+                getErrorMessage(error)
+            );
+            return false;
+        }
+    } 
+
+    public async deleteDefinitely(id: string ): Promise<boolean> {
+        try{
+         
+            const affectedRows = await User.destroy({where: {id: id}})
+if (affectedRows === 0) {
+                logger.warn(ErrorMessages.invalidUserId(), id);
+                return false;
+            }
+            return true;
+        }catch (error){
+                logger.error(
+                ErrorMessages.internalServerError(),
+                id,
+                getErrorMessage(error)
+            );
+            return false;
+        }
+    }
 }
 
 export default UserRepository;
