@@ -68,11 +68,11 @@ class UserService extends BaseService {
     /**
      * Retourne tous les helpers avec leur note hebdomadaire.
      */
-    public async getAllHelpers(): Promise<any[]> {
+    public async getAllHelpers(): Promise<any[] | undefined> {
         try {
-            const helpers: User[] = await this._userRepository.findAllHelpers();
+            const helpers: User[] | undefined = await this._userRepository.findAllHelpers();
             const reputationHistoryService = new ReputationHistoryService();
-        
+        if(helpers === undefined)return undefined;
             // Ajoute la note de la semaine à chaque helper
             const helpersWithNote = await Promise.all(
                 helpers.map(async (helper) => {
