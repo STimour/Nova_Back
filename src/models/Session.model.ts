@@ -1,10 +1,12 @@
 import { Model, DataTypes } from 'sequelize';
 import sequelize from '../configDB/db';
 import { User } from './User.model';
+import { Availability } from './Availability.model';
 
 export class Session extends Model {
     public id!: number;
     public name!: string;
+    public meetUrl!: string;
     public idHelper?: number;
     public idStudent?: number;
     public date!: Date;
@@ -23,6 +25,10 @@ Session.init(
             type: DataTypes.STRING,
             allowNull: false
         },
+        meetUrl: {
+            type: DataTypes.TEXT,
+            allowNull: false
+        },
         idHelper: {
             type: DataTypes.INTEGER,
             allowNull: true,
@@ -39,8 +45,16 @@ Session.init(
                 key: 'id'
             }
         },
-        date: {
-            type: DataTypes.DATE,
+        day: {
+            type: DataTypes.DATEONLY,
+            allowNull: false
+        },
+        startTime: {
+            type: DataTypes.TIME,
+            allowNull: false
+        },
+        endTime: {
+            type: DataTypes.TIME,
             allowNull: false
         }
     },
@@ -70,3 +84,5 @@ User.hasMany(Session, {
     foreignKey: 'idStudent',
     as: 'studentSessions'
 });
+
+Session

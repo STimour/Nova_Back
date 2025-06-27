@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { Availability } from '../models/Availability.model';
 
 export class AvailabilityService {
+    
     /**
      * Calcule le taux de disponibilité d'un helper sur une période donnée.
      */
