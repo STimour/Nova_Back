@@ -1,3 +1,5 @@
+import { SkillsCategory } from './../SkillsCategory.model';
+import { Skill } from './../Skill.model';
 import { Availability } from './../Availability.model';
 import { Reputation } from './../Reputation.model';
 import { Optional, Model } from 'sequelize';
@@ -15,6 +17,8 @@ export interface IUser {
     deleted: boolean;
     createdAt: Date;
     updatedAt: Date;
+    Skill?: Skill[];
+    SkillsCategory?: SkillsCategory[];
     Reputation?: Reputation;
     Availability?: Availability;
 }
@@ -22,4 +26,3 @@ export interface IUser {
 // Définis les attributs nécessaires à la création
 export interface UserCreationAttributes
     extends Optional<IUser, 'id' | 'createdAt' | 'updatedAt' | 'deleted'> {}
-

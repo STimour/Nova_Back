@@ -85,4 +85,4 @@ User.hasMany(Session, {
     as: 'studentSessions'
 });
 
-Session
+Session;

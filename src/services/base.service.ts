@@ -1,10 +1,10 @@
 import { IUser } from '../models/interfaces/IUser';
 
 export class BaseService {
-    public readonly IS_WORK_DONE: boolean;
+    public readonly WORK_DONE: boolean;
 
     constructor() {
-        this.IS_WORK_DONE = true;
+        this.WORK_DONE = true;
     }
 
     public verifyUserData(userData: IUser): boolean {
@@ -16,9 +16,10 @@ export class BaseService {
             !userData.email ||
             !userData.email.includes('@') ||
             userData.email.includes(' ') ||
+            userData.email.includes('<') ||
+            userData.email.includes('>') ||
             !userData.firstname ||
             !userData.lastname ||
-            !userData.sexe ||
             !userData.birthdate ||
             !userData.role
         ) {

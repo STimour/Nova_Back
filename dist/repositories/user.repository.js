@@ -17,6 +17,7 @@ const Reputation_model_1 = require("./../models/Reputation.model");
 const User_model_1 = require("../models/User.model");
 const logger_1 = __importDefault(require("../utils/logger"));
 const errorHandler_middlewares_1 = require("../middlwares/errorHandler.middlewares");
+const error_messages_1 = __importDefault(require("../utils/error.messages"));
 class UserRepository {
     constructor() {
         this.USER_FOUND = true;
@@ -24,27 +25,38 @@ class UserRepository {
     findAllUsers() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield User_model_1.User.findAll();
+                const users = yield User_model_1.User.findAll();
+                if (!users || users.length === 0) {
+                    logger_1.default.warn(error_messages_1.default.errorFetchingUsers());
+                    return undefined;
+                }
+                return users;
             }
             catch (error) {
                 logger_1.default.error('Error in UserRepository.findAllUsers: %s', (0, errorHandler_middlewares_1.getErrorMessage)(error));
-                throw error;
+                return undefined;
             }
         });
     }
-    findUser(id) {
+    findUser(id, deleted) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const user = yield User_model_1.User.findByPk(id);
+                const whereClause = { id: id };
+                if (typeof deleted !== 'undefined') {
+                    whereClause.deleted = deleted;
+                }
+                const user = yield User_model_1.User.findOne({
+                    where: whereClause
+                });
                 if (user === null) {
-                    logger_1.default.error("User for id %d: %s wasn't found", id);
-                    return undefined;
+                    logger_1.default.error('User for id %d: %s wasn\'t found', id);
+                    return null;
                 }
                 return user;
             }
             catch (error) {
                 logger_1.default.error('Error in UserRepository.findUser: %s', (0, errorHandler_middlewares_1.getErrorMessage)(error));
-                throw error;
+                return null;
             }
         });
     }
@@ -72,21 +84,26 @@ class UserRepository {
             }
             catch (error) {
                 logger_1.default.error('Error in UserRepository.findAllStudents: %s', (0, errorHandler_middlewares_1.getErrorMessage)(error));
-                throw error;
+                return undefined;
             }
         });
     }
     findAllHelpers() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield User_model_1.User.findAll({
+                const users = yield User_model_1.User.findAll({
                     where: { role: 'helper' },
                     include: [{ model: Reputation_model_1.Reputation, as: 'reputations' }]
                 });
+                if (!users || users.length === 0) {
+                    logger_1.default.error('No helpers were found');
+                    return undefined;
+                }
+                return users;
             }
             catch (error) {
                 logger_1.default.error('Error in UserRepository.findAllHelpers: %s', (0, errorHandler_middlewares_1.getErrorMessage)(error));
-                throw error;
+                return undefined;
             }
         });
     }
@@ -102,7 +119,7 @@ class UserRepository {
             }
             catch (error) {
                 logger_1.default.error('Error in UserRepository.verifyUserBeforeInscription for %s %s: %s', firstname, email, (0, errorHandler_middlewares_1.getErrorMessage)(error));
-                throw error;
+                return this.USER_FOUND;
             }
         });
     }
@@ -118,7 +135,7 @@ class UserRepository {
             }
             catch (error) {
                 logger_1.default.error('Error in UserRepository.createUser for %s %s: %s', user.firstname, user.lastname, (0, errorHandler_middlewares_1.getErrorMessage)(error));
-                throw error;
+                return false;
             }
         });
     }
@@ -133,14 +150,14 @@ class UserRepository {
                     ]
                 });
                 if (helper === null) {
-                    logger_1.default.error("Helper for id %d: %s wasn't found", id);
+                    logger_1.default.error('Helper for id %d: %s wasn\'t found', id);
                     return undefined;
                 }
                 return helper;
             }
             catch (error) {
                 logger_1.default.error('Error in UserRepository.findById for id %d: %s', id, (0, errorHandler_middlewares_1.getErrorMessage)(error));
-                throw error;
+                return undefined;
             }
         });
     }
@@ -149,14 +166,47 @@ class UserRepository {
             try {
                 const student = yield User_model_1.User.findOne({ where: { id: id, role: 'student' } });
                 if (student === null) {
-                    logger_1.default.error("Student for id %d: %s wasn't found", id);
+                    logger_1.default.error('Student for id %d: %s wasn\'t found', id);
                     return undefined;
                 }
                 return student;
             }
             catch (error) {
                 logger_1.default.error('Error in UserRepository.findById for id %d: %s', id, (0, errorHandler_middlewares_1.getErrorMessage)(error));
-                throw error;
+                return undefined;
+            }
+        });
+    }
+    deleteLogically(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const whereClause = { id: id, deleted: false };
+                const [affectedRows] = yield User_model_1.User.update({ deleted: true }, { where: { whereClause } });
+                if (affectedRows === 0) {
+                    logger_1.default.warn(error_messages_1.default.invalidUserId(), id);
+                    return false;
+                }
+                return true;
+            }
+            catch (error) {
+                logger_1.default.error(error_messages_1.default.internalServerError(), id, (0, errorHandler_middlewares_1.getErrorMessage)(error));
+                return false;
+            }
+        });
+    }
+    deleteDefinitely(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const affectedRows = yield User_model_1.User.destroy({ where: { id: id } });
+                if (affectedRows === 0) {
+                    logger_1.default.warn(error_messages_1.default.invalidUserId(), id);
+                    return false;
+                }
+                return true;
+            }
+            catch (error) {
+                logger_1.default.error(error_messages_1.default.internalServerError(), id, (0, errorHandler_middlewares_1.getErrorMessage)(error));
+                return false;
             }
         });
     }

@@ -17,11 +17,11 @@ class UserRepository implements IUserRepository {
     public async findAllUsers(): Promise<User[] | undefined> {
         try {
             const users = await User.findAll();
-            if(!users || users.length === 0){
-                logger.warn(ErrorMessages.errorFetchingUsers())
+            if (!users || users.length === 0) {
+                logger.warn(ErrorMessages.errorFetchingUsers());
                 return undefined;
             }
-            return users
+            return users;
         } catch (error) {
             logger.error('Error in UserRepository.findAllUsers: %s', getErrorMessage(error));
             return undefined;
@@ -40,7 +40,7 @@ class UserRepository implements IUserRepository {
             });
 
             if (user === null) {
-                logger.error("User for id %d: %s wasn't found", id);
+                logger.error('User for id %d: %s wasn\'t found', id);
                 return null;
             }
 
@@ -84,7 +84,7 @@ class UserRepository implements IUserRepository {
             });
 
             if (!users || users.length === 0) {
-                logger.error("No helpers were found");
+                logger.error('No helpers were found');
                 return undefined;
             }
 
@@ -155,7 +155,7 @@ class UserRepository implements IUserRepository {
             });
 
             if (helper === null) {
-                logger.error("Helper for id %d: %s wasn't found", id);
+                logger.error('Helper for id %d: %s wasn\'t found', id);
                 return undefined;
             }
             return helper;
@@ -173,7 +173,7 @@ class UserRepository implements IUserRepository {
         try {
             const student = await User.findOne({ where: { id: id, role: 'student' } });
             if (student === null) {
-                logger.error("Student for id %d: %s wasn't found", id);
+                logger.error('Student for id %d: %s wasn\'t found', id);
                 return undefined;
             }
             return student;
@@ -188,12 +188,9 @@ class UserRepository implements IUserRepository {
     }
 
     public async deleteLogically(id: string): Promise<boolean> {
-        try{
+        try {
             const whereClause: any = { id: id, deleted: false };
-            const [affectedRows] = await User.update(
-                { deleted: true },
-                { where: { whereClause }}
-            );
+            const [affectedRows] = await User.update({ deleted: true }, { where: { whereClause } });
 
             if (affectedRows === 0) {
                 logger.warn(ErrorMessages.invalidUserId(), id);
@@ -201,32 +198,22 @@ class UserRepository implements IUserRepository {
             }
 
             return true;
-
-        }catch (error){
-            logger.error(
-                ErrorMessages.internalServerError(),
-                id,
-                getErrorMessage(error)
-            );
+        } catch (error) {
+            logger.error(ErrorMessages.internalServerError(), id, getErrorMessage(error));
             return false;
         }
-    } 
+    }
 
-    public async deleteDefinitely(id: string ): Promise<boolean> {
-        try{
-         
-            const affectedRows = await User.destroy({where: {id: id}})
-if (affectedRows === 0) {
+    public async deleteDefinitely(id: string): Promise<boolean> {
+        try {
+            const affectedRows = await User.destroy({ where: { id: id } });
+            if (affectedRows === 0) {
                 logger.warn(ErrorMessages.invalidUserId(), id);
                 return false;
             }
             return true;
-        }catch (error){
-                logger.error(
-                ErrorMessages.internalServerError(),
-                id,
-                getErrorMessage(error)
-            );
+        } catch (error) {
+            logger.error(ErrorMessages.internalServerError(), id, getErrorMessage(error));
             return false;
         }
     }

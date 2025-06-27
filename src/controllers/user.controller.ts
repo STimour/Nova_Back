@@ -51,7 +51,7 @@ class UserController {
     public async getAllHelpers(req: Request, res: Response): Promise<void> {
         try {
             const helpers = await this._userService.getAllHelpers();
-            if(helpers === undefined){
+            if (helpers === undefined) {
                 res.status(404).json({ message: 'No users found' });
                 return;
             }
@@ -93,8 +93,8 @@ class UserController {
     public async getAllStudents(req: Request, res: Response): Promise<void> {
         try {
             const students = await this._userService.findAllStudents();
-            if(students === undefined){
-                res.status(404).json({ message: ErrorMessages.errorFetchingUsers});
+            if (students === undefined) {
+                res.status(404).json({ message: ErrorMessages.errorFetchingUsers });
                 return;
             }
             res.status(200).json(students);
@@ -134,40 +134,38 @@ class UserController {
     }
 
     public async deleteUser(req: Request, res: Response): Promise<void> {
-    try{
-        const userToDelete = req.body
+        try {
+            const userToDelete = req.body;
 
-        if(userToDelete === ''){
-            logger.error(ErrorMessages.forbidden(), JSON.stringify(userToDelete))
-            res.status(400).json({ message: ErrorMessages.internalServerError() });
-            return;
-        }
+            if (userToDelete === '') {
+                logger.error(ErrorMessages.forbidden(), JSON.stringify(userToDelete));
+                res.status(400).json({ message: ErrorMessages.internalServerError() });
+                return;
+            }
 
-        if (isNaN(parseInt(userToDelete.id))) {
-            logger.error(ErrorMessages.invalidUserId(), JSON.stringify(userToDelete));
-            res.status(400).json({ message: ErrorMessages.internalServerError() });
-            return;
-        }
+            if (isNaN(parseInt(userToDelete.id))) {
+                logger.error(ErrorMessages.invalidUserId(), JSON.stringify(userToDelete));
+                res.status(400).json({ message: ErrorMessages.internalServerError() });
+                return;
+            }
 
-        if(!await this._userService.findUser(parseInt(userToDelete.id))){
-            logger.error(ErrorMessages.notFound(), JSON.stringify(userToDelete))
-            res.status(400).json({ message: ErrorMessages.internalServerError() });
-            return;
-        }
+            if (!(await this._userService.findUser(parseInt(userToDelete.id)))) {
+                logger.error(ErrorMessages.notFound(), JSON.stringify(userToDelete));
+                res.status(400).json({ message: ErrorMessages.internalServerError() });
+                return;
+            }
 
-        if(!await this._userService.deleteUser(userToDelete as any as IUserToDelete)){
-             logger.error(ErrorMessages.notFound(), JSON.stringify(userToDelete))
-            res.status(400).json({ message: ErrorMessages.internalServerError() });
-            return;
-        };
+            if (!(await this._userService.deleteUser(userToDelete as any as IUserToDelete))) {
+                logger.error(ErrorMessages.notFound(), JSON.stringify(userToDelete));
+                res.status(400).json({ message: ErrorMessages.internalServerError() });
+                return;
+            }
 
-        res.status(204).json('Deleted')
-
-
-    }catch (error) {
+            res.status(204).json('Deleted');
+        } catch (error) {
             logger.error(
                 'Error in deleteUser controller for ID %s: %s',
-                
+
                 getErrorMessage(error)
             );
             res.status(500).json({ message: 'Error fetching student' });

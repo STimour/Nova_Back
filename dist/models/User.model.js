@@ -45,6 +45,10 @@ User.init({
         type: sequelize_1.DataTypes.STRING,
         allowNull: false
     },
+    superHelper: {
+        type: sequelize_1.DataTypes.BOOLEAN,
+        defaultValue: false
+    },
     deleted: {
         type: sequelize_1.DataTypes.BOOLEAN,
         allowNull: false,

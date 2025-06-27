@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.BaseService = void 0;
 class BaseService {
     constructor() {
-        this.IS_WORK_DONE = true;
+        this.WORK_DONE = true;
     }
     verifyUserData(userData) {
         let isUserDataValid = true;
@@ -12,9 +12,10 @@ class BaseService {
             !userData.email ||
             !userData.email.includes('@') ||
             userData.email.includes(' ') ||
+            userData.email.includes('<') ||
+            userData.email.includes('>') ||
             !userData.firstname ||
             !userData.lastname ||
-            !userData.sexe ||
             !userData.birthdate ||
             !userData.role) {
             return !isUserDataValid;

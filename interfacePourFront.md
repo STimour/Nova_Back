@@ -2,17 +2,17 @@ import { Reputation } from '../../models/Reputation.model';
 import { Availability } from '../../models/Availability.model';
 
 export interface IHelperFront {
-    id: number;
-    lastname?: string;
-    firstname?: string;
-    email: string;
-    sexe: string;
-    birthdate?: string; // ou Date
-    role: string;
-    superHelper: boolean;
-    deleted: boolean;
-    createdAt: string; // ou Date
-    updatedAt: string; // ou Date
+id: number;
+lastname?: string;
+firstname?: string;
+email: string;
+sexe: string;
+birthdate?: string; // ou Date
+role: string;
+superHelper: boolean;
+deleted: boolean;
+createdAt: string; // ou Date
+updatedAt: string; // ou Date
 
     // Champs calculés/statistiques
     noteSemaine: number; // Note moyenne sur 5 de la semaine
@@ -35,4 +35,5 @@ export interface IHelperFront {
         createdAt: string;
         updatedAt: string;
     }[];
+
 }

@@ -29,7 +29,6 @@ class App {
         this.app.use(express_1.default.json());
         this.app.use(express_1.default.urlencoded({ extended: true }));
         this.app.use((0, cors_1.default)());
-        // Ajouter d'autres middlewares (morgan, helmet, etc.)
     }
     initializeRoutes() {
         this.app.get('/', (req, res) => {

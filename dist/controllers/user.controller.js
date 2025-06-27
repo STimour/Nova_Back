@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const user_service_1 = __importDefault(require("../services/user.service"));
 const errorHandler_middlewares_1 = require("../middlwares/errorHandler.middlewares"); // Importer pour logger
 const logger_1 = __importDefault(require("../utils/logger"));
+const error_messages_1 = __importDefault(require("../utils/error.messages"));
 class UserController {
     constructor() {
         this._userService = new user_service_1.default();
@@ -23,8 +24,7 @@ class UserController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const users = yield this._userService.findAllUsers();
-                if (users.length === 0) {
-                    logger_1.default.warn('No users found');
+                if (users === undefined) {
                     res.status(404).json({ message: 'No users found' });
                     return;
                 }
@@ -32,7 +32,6 @@ class UserController {
                 return;
             }
             catch (error) {
-                logger_1.default.error('Error in getAllUsers controller: %s', (0, errorHandler_middlewares_1.getErrorMessage)(error));
                 res.status(500).json({ message: 'Error fetching users' });
                 return;
             }
@@ -43,13 +42,11 @@ class UserController {
             try {
                 const userId = parseInt(req.params.id);
                 if (isNaN(userId)) {
-                    logger_1.default.warn('Invalid user ID: %s', userId);
                     res.status(400).json({ message: 'Invalid user ID' });
                     return;
                 }
                 const user = yield this._userService.findUser(userId);
                 if (!user) {
-                    logger_1.default.warn('User not found with ID: %s', userId);
                     res.status(404).json({ message: 'User not found' });
                     return;
                 }
@@ -57,7 +54,6 @@ class UserController {
                 return;
             }
             catch (error) {
-                logger_1.default.error('Error in getUserById controller for ID %s: %s', req.params.id, (0, errorHandler_middlewares_1.getErrorMessage)(error));
                 res.status(500).json({ message: 'Error fetching user' });
                 return;
             }
@@ -67,6 +63,10 @@ class UserController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const helpers = yield this._userService.getAllHelpers();
+                if (helpers === undefined) {
+                    res.status(404).json({ message: 'No users found' });
+                    return;
+                }
                 res.status(200).json(helpers);
                 return;
             }
@@ -88,7 +88,6 @@ class UserController {
                 }
                 const helper = yield this._userService.findHelper(helperId);
                 if (!helper) {
-                    logger_1.default.warn('Helper not found with ID: %s', helperId);
                     res.status(404).json({ message: 'Helper not found' });
                     return;
                 }
@@ -106,6 +105,10 @@ class UserController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const students = yield this._userService.findAllStudents();
+                if (students === undefined) {
+                    res.status(404).json({ message: error_messages_1.default.errorFetchingUsers });
+                    return;
+                }
                 res.status(200).json(students);
                 return;
             }
@@ -144,6 +147,28 @@ class UserController {
     deleteUser(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                const userToDelete = req.body;
+                if (userToDelete === '') {
+                    logger_1.default.error(error_messages_1.default.forbidden(), JSON.stringify(userToDelete));
+                    res.status(400).json({ message: error_messages_1.default.internalServerError() });
+                    return;
+                }
+                if (isNaN(parseInt(userToDelete.id))) {
+                    logger_1.default.error(error_messages_1.default.invalidUserId(), JSON.stringify(userToDelete));
+                    res.status(400).json({ message: error_messages_1.default.internalServerError() });
+                    return;
+                }
+                if (!(yield this._userService.findUser(parseInt(userToDelete.id)))) {
+                    logger_1.default.error(error_messages_1.default.notFound(), JSON.stringify(userToDelete));
+                    res.status(400).json({ message: error_messages_1.default.internalServerError() });
+                    return;
+                }
+                if (!(yield this._userService.deleteUser(userToDelete))) {
+                    logger_1.default.error(error_messages_1.default.notFound(), JSON.stringify(userToDelete));
+                    res.status(400).json({ message: error_messages_1.default.internalServerError() });
+                    return;
+                }
+                res.status(204).json('Deleted');
             }
             catch (error) {
                 logger_1.default.error('Error in deleteUser controller for ID %s: %s', (0, errorHandler_middlewares_1.getErrorMessage)(error));

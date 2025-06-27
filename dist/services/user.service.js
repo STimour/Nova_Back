@@ -17,6 +17,8 @@ const auth_service_1 = __importDefault(require("./../services/auth.service"));
 const base_service_1 = require("./base.service");
 const errorHandler_middlewares_1 = require("../middlwares/errorHandler.middlewares");
 const logger_1 = __importDefault(require("../utils/logger"));
+const error_messages_1 = __importDefault(require("../utils/error.messages"));
+const reputationHistory_service_1 = require("./reputationHistory.service");
 class UserService extends base_service_1.BaseService {
     constructor() {
         super();
@@ -29,6 +31,8 @@ class UserService extends base_service_1.BaseService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const users = yield this._userRepository.findAllUsers();
+                if (users === undefined)
+                    return undefined;
                 return users;
             }
             catch (error) {
@@ -41,6 +45,8 @@ class UserService extends base_service_1.BaseService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const user = yield this._userRepository.findUser(id);
+                if (user === null)
+                    return null;
                 return user;
             }
             catch (error) {
@@ -65,11 +71,22 @@ class UserService extends base_service_1.BaseService {
             }
         });
     }
+    /**
+     * Retourne tous les helpers avec leur note hebdomadaire.
+     */
     getAllHelpers() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const helpers = yield this._userRepository.findAllHelpers();
-                return helpers;
+                const reputationHistoryService = new reputationHistory_service_1.ReputationHistoryService();
+                if (helpers === undefined)
+                    return undefined;
+                // Ajoute la note de la semaine à chaque helper
+                const helpersWithNote = yield Promise.all(helpers.map((helper) => __awaiter(this, void 0, void 0, function* () {
+                    const noteSemaine = yield reputationHistoryService.getLastWeeklyNote(helper.id);
+                    return Object.assign(Object.assign({}, helper.toJSON()), { noteSemaine: Number(noteSemaine.toFixed(2)) });
+                })));
+                return helpersWithNote;
             }
             catch (error) {
                 logger_1.default.error('Error in UserService.getAllHelpers: %s', (0, errorHandler_middlewares_1.getErrorMessage)(error));
@@ -77,11 +94,18 @@ class UserService extends base_service_1.BaseService {
             }
         });
     }
+    /**
+     * Retourne un helper avec sa note hebdomadaire.
+     */
     findHelper(id) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const helper = yield this._userRepository.findHelper(id);
-                return helper;
+                if (!helper)
+                    return undefined;
+                const reputationHistoryService = new reputationHistory_service_1.ReputationHistoryService();
+                const noteSemaine = yield reputationHistoryService.getLastWeeklyNote(helper.id);
+                return Object.assign(Object.assign({}, helper.toJSON()), { noteSemaine: Number(noteSemaine.toFixed(2)) });
             }
             catch (error) {
                 logger_1.default.error('Error in UserService.findHelper: %s', (0, errorHandler_middlewares_1.getErrorMessage)(error));
@@ -93,6 +117,9 @@ class UserService extends base_service_1.BaseService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const students = yield this._userRepository.findAllStudents();
+                if (students === undefined) {
+                    return undefined;
+                }
                 return students;
             }
             catch (error) {
@@ -129,9 +156,9 @@ class UserService extends base_service_1.BaseService {
                 const isUserCreated = yield this._userRepository.createUser(userData);
                 if (!isUserCreated) {
                     logger_1.default.warn('Error creating user', userData.firstname, userData.lastname);
-                    return !this.IS_WORK_DONE;
+                    return !this.WORK_DONE;
                 }
-                return this.IS_WORK_DONE;
+                return this.WORK_DONE;
             }
             catch (error) {
                 // a supprimer pour la prod
@@ -139,6 +166,22 @@ class UserService extends base_service_1.BaseService {
                 logger_1.default.error('Error creating user:', userData.firstname, userData.lastname, (0, errorHandler_middlewares_1.getErrorMessage)(error));
                 throw error;
             }
+        });
+    }
+    deleteUser(userToDelete) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const user = yield this._userRepository.findUser(parseInt(userToDelete.id), false);
+            if (user === null) {
+                logger_1.default.error(error_messages_1.default.notFound(), userToDelete.id);
+                return false;
+            }
+            if (!userToDelete.toDelete) {
+                yield this._userRepository.deleteLogically(userToDelete.id);
+                return true;
+            }
+            if (!(yield this._userRepository.deleteLogically(userToDelete.id)))
+                return false;
+            return true;
         });
     }
 }

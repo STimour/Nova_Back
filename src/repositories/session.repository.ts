@@ -1,4 +1,4 @@
-import { Session } from "../models/Session.model";
+import { Session } from '../models/Session.model';
 
 class SessionRepository {
     public async create(sessionData: any): Promise<Session> {
@@ -18,15 +18,22 @@ class SessionRepository {
     }
 
     public async findAll(idUser: number): Promise<Session[]> {
-        return await Session.findAll({where : {
-            id: idUser}
+        return await Session.findAll({
+            where: {
+                id: idUser
+            }
         });
     }
 
     /**
      * Calcule le taux de disponibilité d'un helper sur une période donnée.
      */
-    public async getDisponibiliteHelper(idUser: number, startDate: Date, endDate: Date, totalCreneaux: number): Promise<number> {
+    public async getDisponibiliteHelper(
+        idUser: number,
+        startDate: Date,
+        endDate: Date,
+        totalCreneaux: number
+    ): Promise<number> {
         const count = await Session.count({
             where: {
                 idUser,

@@ -1,9 +1,9 @@
-import { Session } from "../models/Session.model";
-import SessionRepository from "../repositories/session.repository";
-import logger from "../utils/logger";
-import ErrorMessages from "../utils/error.messages";
-import { count } from "console";
-import { parse } from "path";
+import { Session } from '../models/Session.model';
+import SessionRepository from '../repositories/session.repository';
+import logger from '../utils/logger';
+import ErrorMessages from '../utils/error.messages';
+import { count } from 'console';
+import { parse } from 'path';
 
 class SessionService {
     private readonly _sessionRepository: SessionRepository;
@@ -82,14 +82,14 @@ class SessionService {
 
     public async getAllSessions(idUser: string): Promise<Session[] | undefined> {
         try {
-            const id = parseInt(idUser)
-            if(isNaN(id)){
-                logger.error(ErrorMessages.invalidUserId(), idUser)
+            const id = parseInt(idUser);
+            if (isNaN(id)) {
+                logger.error(ErrorMessages.invalidUserId(), idUser);
                 return undefined;
             }
             const sessions = await this._sessionRepository.findAll(id);
             if (!sessions || sessions.length === 0) {
-                logger.warn(ErrorMessages.notFound(), "sessions");
+                logger.warn(ErrorMessages.notFound(), 'sessions');
                 return undefined;
             }
             return sessions;
@@ -99,22 +99,31 @@ class SessionService {
         }
     }
 
-    public async getDisponibiliteHelper(idUser: string, startDate: Date, endDate: Date): Promise<number | undefined> {
-        try{
-            const id = parseInt(idUser)
+    public async getDisponibiliteHelper(
+        idUser: string,
+        startDate: Date,
+        endDate: Date
+    ): Promise<number | undefined> {
+        try {
+            const id = parseInt(idUser);
             const totalCreneaux = await this.getAllSessions(idUser);
             if (isNaN(id)) {
                 logger.warn(ErrorMessages.operationFailed());
                 return undefined;
             }
-            if(totalCreneaux === undefined || totalCreneaux?.length === 0){  
+            if (totalCreneaux === undefined || totalCreneaux?.length === 0) {
                 logger.warn(ErrorMessages.operationFailed());
                 return undefined;
             }
-            const count = await this._sessionRepository.getDisponibiliteHelper(parseInt(idUser), startDate, endDate, totalCreneaux.length)
+            const count = await this._sessionRepository.getDisponibiliteHelper(
+                parseInt(idUser),
+                startDate,
+                endDate,
+                totalCreneaux.length
+            );
 
             return count;
-        }catch (error){
+        } catch (error) {
             logger.error(ErrorMessages.forbiddenGeneric(), JSON.stringify(error));
             return undefined;
         }

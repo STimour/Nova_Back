@@ -9,7 +9,6 @@ import { IUserToDelete } from '../models/interfaces/IUserToDelete.interface';
 import ErrorMessages from '../utils/error.messages';
 import { ReputationHistoryService } from './reputationHistory.service';
 
-
 class UserService extends BaseService {
     private readonly IS_USER_DATA_VALID: boolean;
     private IS_NEW_USER: boolean;
@@ -28,7 +27,7 @@ class UserService extends BaseService {
     public async findAllUsers(): Promise<User[] | undefined> {
         try {
             const users: User[] | undefined = await this._userRepository.findAllUsers();
-            if(users === undefined) return undefined;
+            if (users === undefined) return undefined;
             return users;
         } catch (error) {
             logger.error('Error in UserService.findAllUsers: %s', getErrorMessage(error));
@@ -39,7 +38,7 @@ class UserService extends BaseService {
     public async findUser(id: number): Promise<User | null> {
         try {
             const user: User | null = await this._userRepository.findUser(id);
-            if(user === null) return null;
+            if (user === null) return null;
             return user;
         } catch (error) {
             logger.error('Error in UserService.findUser: %s', getErrorMessage(error));
@@ -72,7 +71,7 @@ class UserService extends BaseService {
         try {
             const helpers: User[] | undefined = await this._userRepository.findAllHelpers();
             const reputationHistoryService = new ReputationHistoryService();
-        if(helpers === undefined)return undefined;
+            if (helpers === undefined) return undefined;
             // Ajoute la note de la semaine à chaque helper
             const helpersWithNote = await Promise.all(
                 helpers.map(async (helper) => {
@@ -113,8 +112,8 @@ class UserService extends BaseService {
         try {
             const students: User[] | undefined = await this._userRepository.findAllStudents();
 
-            if( students === undefined){
-                return undefined
+            if (students === undefined) {
+                return undefined;
             }
             return students;
         } catch (error) {
@@ -150,15 +149,14 @@ class UserService extends BaseService {
                 logger.warn('User already exists', userData.firstname, userData.lastname);
                 return !this.IS_NEW_USER;
             }
-
             const isUserCreated: boolean = await this._userRepository.createUser(userData);
 
             if (!isUserCreated) {
                 logger.warn('Error creating user', userData.firstname, userData.lastname);
-                return !this.IS_WORK_DONE;
+                return !this.WORK_DONE;
             }
 
-            return this.IS_WORK_DONE;
+            return this.WORK_DONE;
         } catch (error) {
             // a supprimer pour la prod
             console.error('Error creating user:', getErrorMessage(error));
@@ -174,21 +172,19 @@ class UserService extends BaseService {
     }
 
     public async deleteUser(userToDelete: IUserToDelete): Promise<boolean> {
-         const user = await this._userRepository.findUser(parseInt(userToDelete.id), false);
+        const user = await this._userRepository.findUser(parseInt(userToDelete.id), false);
 
-        if(user === null){
-            logger.error(ErrorMessages.notFound(),
-            userToDelete.id);
+        if (user === null) {
+            logger.error(ErrorMessages.notFound(), userToDelete.id);
             return false;
         }
-        if(!userToDelete.toDelete){
-        await this._userRepository.deleteLogically(userToDelete.id);
+        if (!userToDelete.toDelete) {
+            await this._userRepository.deleteLogically(userToDelete.id);
 
+            return true;
+        }
 
-        return true;
-    }
-
-        if(!await this._userRepository.deleteLogically(userToDelete.id)) return false;
+        if (!(await this._userRepository.deleteLogically(userToDelete.id))) return false;
 
         return true;
     }

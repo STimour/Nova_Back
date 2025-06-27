@@ -20,6 +20,10 @@ Session.init({
         type: sequelize_1.DataTypes.STRING,
         allowNull: false
     },
+    meetUrl: {
+        type: sequelize_1.DataTypes.TEXT,
+        allowNull: false
+    },
     idHelper: {
         type: sequelize_1.DataTypes.INTEGER,
         allowNull: true,
@@ -36,8 +40,16 @@ Session.init({
             key: 'id'
         }
     },
-    date: {
-        type: sequelize_1.DataTypes.DATE,
+    day: {
+        type: sequelize_1.DataTypes.DATEONLY,
+        allowNull: false
+    },
+    startTime: {
+        type: sequelize_1.DataTypes.TIME,
+        allowNull: false
+    },
+    endTime: {
+        type: sequelize_1.DataTypes.TIME,
         allowNull: false
     }
 }, {
@@ -62,3 +74,4 @@ User_model_1.User.hasMany(Session, {
     foreignKey: 'idStudent',
     as: 'studentSessions'
 });
+Session;

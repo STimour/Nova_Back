@@ -73,6 +73,35 @@ class ErrorMessages {
         return 'Error fetching students. %s';
     }
 
+    // Skill
+
+    public static errorCreatingSkill(): string {
+        return 'Error creating skill: %s %s';
+    }
+
+    public static errorUpdatingSkill(): string {
+        return 'Error updating skill: %s %s';
+    }
+
+    public static errorDeletingSkill(): string {
+        return 'Error deleting skill: %s %s';
+    }
+
+
+    // SkillCategory
+
+    public static errorCreatingSkillCategory(): string {
+        return 'Error creating skillCategory: %s %s';
+    }
+
+    public static errorUpdatingSkillCategory(): string {
+        return 'Error updating skillCategory: %s %s';
+    }
+
+    public static errorDeletingSkillCategory(): string {
+        return 'Error deleting skillCategory: %s %s';
+    }
+
     // Generic
     public static badRequest(): string {
         return 'Bad request. %s';
