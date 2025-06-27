@@ -1,0 +1,22 @@
+
+
+Commande pour lancer l'execution du projet en mode dev car la prod pas forcément préte et sécuré 
+## docker-compose -f docker-compose.dev.yml up
+
+
+Pour production (n'est pas lancer la bdd n'est pas prête)
+## docker-compose -f docker-compose.yml up --build
+
+Il est aussi possibl d'utiliser les alias créer à l'aide de Makefile:
+
+Pour lancer la version dev :
+## make dev
+
+Pour lancer la version prod : 
+## make prod
+
+Pour arrêter les conteneurs : 
+## make down
+
+Pour construire l’image sans lancer les conteneurs :
+## make build
