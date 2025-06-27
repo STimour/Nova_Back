@@ -3,7 +3,7 @@ import cron from 'node-cron';
 import { HelperBadgeService } from './services/helperBadge.service';
 import { ReputationHistoryService } from './services/reputationHistory.service';
 
-const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
+const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3030;
 
 const application = new App(port);
 
