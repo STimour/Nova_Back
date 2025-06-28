@@ -9,6 +9,9 @@ import { IUserToDelete } from '../models/interfaces/IUserToDelete.interface';
 import ErrorMessages from '../utils/error.messages';
 import { ReputationHistoryService } from './reputationHistory.service';
 
+//TODO -  || utiliser la class ErrorMessages
+//TODO - revoir la gestion des types de renvoi pour tous le flux des methodes
+
 class UserService extends BaseService {
     private readonly IS_USER_DATA_VALID: boolean;
     private IS_NEW_USER: boolean;

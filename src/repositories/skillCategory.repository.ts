@@ -57,7 +57,6 @@ class SkillCategoryRepository {
         }
     }
 
-
     public async findAll(): Promise<SkillsCategory[]> {
         try {
             return await SkillsCategory.findAll();

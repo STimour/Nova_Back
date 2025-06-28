@@ -87,7 +87,6 @@ class ErrorMessages {
         return 'Error deleting skill: %s %s';
     }
 
-
     // SkillCategory
 
     public static errorCreatingSkillCategory(): string {
