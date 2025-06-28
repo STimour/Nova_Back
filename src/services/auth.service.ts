@@ -9,6 +9,11 @@ import AuthRepository from '../repositories/auth.repository';
 
 dotenv.config();
 
+//TODO - ajouter l'envoie des mails
+//TODO -  || utiliser la class ErrorMessages
+//TODO - ajouter le logger
+//TODO - revoir la gestion des types de renvoi pour tous le flux des methodes
+
 class AuthService {
     private readonly JWT_SECRET: string;
     private readonly JWT_PREFIX: string;

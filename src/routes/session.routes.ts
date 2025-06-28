@@ -8,3 +8,4 @@ sessionRoutes.post('/session/all', _sessionController.getAllSessions.bind(_sessi
 sessionRoutes.post('/session/:id', _sessionController.deleteSession.bind(_sessionController));
 sessionRoutes.patch('/session/:id', _sessionController.updateSession.bind(_sessionController));
 sessionRoutes.get('/session/:id', _sessionController.getSession.bind(_sessionController));
+sessionRoutes.post('/session/create', _sessionController.createSession.bind(_sessionController));

@@ -10,6 +10,10 @@ export class Session extends Model {
     public idHelper?: number;
     public idStudent?: number;
     public date!: Date;
+    public startTime!: Date;
+    public endTime!: Date;
+    public status!: string;
+    public requestedBy!: number;
     public createdAt!: Date;
     public updatedAt!: Date;
 }
@@ -56,6 +60,19 @@ Session.init(
         endTime: {
             type: DataTypes.TIME,
             allowNull: false
+        },
+        status: {
+            type: DataTypes.ENUM('available', 'pending', 'confirmed', 'refused'),
+            allowNull: false,
+            defaultValue: 'available'
+        },
+        requestedBy: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+            references: {
+                model: User,
+                key: 'id'
+            }
         }
     },
     {

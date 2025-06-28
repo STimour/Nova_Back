@@ -2,8 +2,13 @@ import { Session } from '../models/Session.model';
 import SessionRepository from '../repositories/session.repository';
 import logger from '../utils/logger';
 import ErrorMessages from '../utils/error.messages';
-import { count } from 'console';
-import { parse } from 'path';
+import EmailTemplates from '../utils/email.templates';
+import { notifyUserByEmail } from './nodemailer.service';
+import { User } from '../models/User.model';
+
+//TODO - amelieurer l'envoie des mails
+//TODO -  || utiliser la class ErrorMessages
+//TODO - revoir la gestion des types de renvoi pour tous le flux des methodes
 
 class SessionService {
     private readonly _sessionRepository: SessionRepository;
@@ -26,7 +31,7 @@ class SessionService {
         }
     }
 
-    public async getSession(id: string): Promise<Session | null> {
+    public async getSession(id: number): Promise<Session | null> {
         try {
             if (!id) {
                 logger.warn(ErrorMessages.invalidUserId(), id);
@@ -44,7 +49,7 @@ class SessionService {
         }
     }
 
-    public async updateSession(id: string, updates: any): Promise<Session | null> {
+    public async updateSession(id: number, updates: any): Promise<Session | null> {
         try {
             if (!id) {
                 logger.warn(ErrorMessages.invalidUserId(), id);
@@ -62,7 +67,7 @@ class SessionService {
         }
     }
 
-    public async deleteSession(id: string): Promise<boolean> {
+    public async deleteSession(id: number): Promise<boolean> {
         try {
             if (!id) {
                 logger.warn(ErrorMessages.invalidUserId(), id);
@@ -97,6 +102,126 @@ class SessionService {
             logger.error(ErrorMessages.errorFetchingUsers(), error);
             return undefined;
         }
+    }
+
+    public async requestSession(
+        sessionId: number,
+        studentId: number,
+        message: string = ''
+    ): Promise<boolean> {
+        const session = await this._sessionRepository.findById(sessionId);
+        if (!session) return false;
+        if (session.status !== 'available') return false;
+
+        await this._sessionRepository.update(sessionId, {
+            status: 'pending',
+            requestedBy: studentId
+        });
+
+        // Notifier le helper par email
+        try {
+            const helper = await User.findByPk(session.idHelper);
+            const student = await User.findByPk(studentId);
+            if (helper && helper.email && student) {
+                await notifyUserByEmail(
+                    helper.email,
+                    'Nouvelle demande de session',
+                    EmailTemplates.sessionRequest(
+                        helper.firstname!,
+                        student.firstname!,
+                        session.date,
+                        message
+                    )
+                );
+            }
+        } catch (mailError) {
+            logger.error("Erreur lors de l'envoi du mail de notification helper", mailError);
+        }
+
+        return true;
+    }
+
+    public async acceptSession(
+        sessionId: number,
+        helperId: number,
+        message: string = ''
+    ): Promise<boolean> {
+        const session = await this._sessionRepository.findById(sessionId);
+        if (!session) return false;
+        if (session.status !== 'pending' || session.idHelper !== helperId) return false;
+
+        await this._sessionRepository.update(sessionId, {
+            status: 'confirmed'
+        });
+
+        // Notifier le student par email
+        try {
+            if (session.requestedBy) {
+                const student = await User.findByPk(session.requestedBy);
+                const helper = await User.findByPk(helperId);
+                if (student && student.email && helper) {
+                    await notifyUserByEmail(
+                        student.email,
+                        'Nova - Session acceptée',
+                        EmailTemplates.sessionAccepted(
+                            student.firstname!,
+                            helper.firstname!,
+                            sessionId,
+                            message
+                        )
+                    );
+                }
+            }
+        } catch (mailError) {
+            logger.error(
+                "Erreur lors de l'envoi du mail de notification student (accept)",
+                mailError
+            );
+        }
+
+        return true;
+    }
+
+    public async refuseSession(
+        sessionId: number,
+        helperId: number,
+        message: string = ''
+    ): Promise<boolean> {
+        const session = await this._sessionRepository.findById(sessionId);
+        if (!session) return false;
+        if (session.status !== 'pending' || session.idHelper !== helperId) return false;
+
+        await this._sessionRepository.update(sessionId, {
+            status: 'available',
+            requestedBy: null
+        });
+
+        // Notifier le student du refus par email
+        try {
+            if (session.requestedBy) {
+                const student = await User.findByPk(session.requestedBy);
+                const helper = await User.findByPk(helperId);
+                if (student && student.email && helper) {
+                    await notifyUserByEmail(
+                        student.email!,
+                        'Session refusée',
+                        EmailTemplates.sessionRefused(
+                            student.firstname!,
+                            helper.firstname!,
+                            sessionId,
+                            message
+                        )
+                    );
+                }
+            }
+        } catch (mailError) {
+            logger.error(
+                "Erreur lors de l'envoi du mail de notification student (refuse)",
+                mailError
+            );
+        }
+
+        return true;
     }
 
     public async getDisponibiliteHelper(

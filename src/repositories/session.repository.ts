@@ -5,15 +5,15 @@ class SessionRepository {
         return await Session.create(sessionData);
     }
 
-    public async findById(id: string): Promise<Session | null> {
+    public async findById(id: number): Promise<Session | null> {
         return await Session.findByPk(id);
     }
 
-    public async update(id: string, updates: any): Promise<[number, Session[]]> {
+    public async update(id: number, updates: any): Promise<[number, Session[]]> {
         return await Session.update(updates, { where: { id }, returning: true });
     }
 
-    public async delete(id: string): Promise<number> {
+    public async delete(id: number): Promise<number> {
         return await Session.destroy({ where: { id } });
     }
 
