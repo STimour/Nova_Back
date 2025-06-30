@@ -8,6 +8,7 @@ import logger from '../utils/logger';
 import { IUserToDelete } from '../models/interfaces/IUserToDelete.interface';
 import ErrorMessages from '../utils/error.messages';
 import { ReputationHistoryService } from './reputationHistory.service';
+import { HelperWithNote } from '../typeExtends/user.extends';
 
 //TODO -  || utiliser la class ErrorMessages
 //TODO - revoir la gestion des types de renvoi pour tous le flux des methodes
@@ -49,43 +50,17 @@ class UserService extends BaseService {
         }
     }
 
-    public async findUserByEmail(email: string): Promise<User | undefined> {
-        try {
-            const user: User | undefined = await this._userRepository.findUserByEmail(email);
-            if (user === undefined) {
-                logger.info('User not found: %s', email);
-                return undefined;
-            }
-            return user;
-        } catch (error) {
-            logger.error(
-                'Error in UserService.findUserByEmail: %s; %s',
-                email,
-                getErrorMessage(error)
-            );
-            return undefined;
-        }
-    }
-
     /**
      * Retourne tous les helpers avec leur note hebdomadaire.
      */
-    public async getAllHelpers(): Promise<any[] | undefined> {
+    public async getAllHelpers(): Promise<HelperWithNote[] | undefined> {
         try {
-            const helpers: User[] | undefined = await this._userRepository.findAllHelpers();
-            const reputationHistoryService = new ReputationHistoryService();
+            const helpers: HelperWithNote[] | undefined =
+                await this._userRepository.findAllHelpers();
+
             if (helpers === undefined) return undefined;
-            // Ajoute la note de la semaine à chaque helper
-            const helpersWithNote = await Promise.all(
-                helpers.map(async (helper) => {
-                    const noteSemaine = await reputationHistoryService.getLastWeeklyNote(helper.id);
-                    return {
-                        ...helper.toJSON(),
-                        noteSemaine: Number(noteSemaine.toFixed(2))
-                    };
-                })
-            );
-            return helpersWithNote;
+
+            return helpers;
         } catch (error) {
             logger.error('Error in UserService.getAllHelpers: %s', getErrorMessage(error));
             throw error;

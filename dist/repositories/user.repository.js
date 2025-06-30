@@ -12,20 +12,25 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const User_model_1 = require("./../models/User.model");
 const Availability_model_1 = require("./../models/Availability.model");
-const Reputation_model_1 = require("./../models/Reputation.model");
-const User_model_1 = require("../models/User.model");
 const logger_1 = __importDefault(require("../utils/logger"));
 const errorHandler_middlewares_1 = require("../middlwares/errorHandler.middlewares");
 const error_messages_1 = __importDefault(require("../utils/error.messages"));
+const node_cache_1 = __importDefault(require("node-cache"));
+const reputationHistory_service_1 = require("../services/reputationHistory.service");
+//TODO - revoir comment on fait le cache - trouver comment créer un service à part
 class UserRepository {
-    constructor() {
+    constructor(_reputationHistoryService = new reputationHistory_service_1.ReputationHistoryService()) {
+        this._reputationHistoryService = _reputationHistoryService;
         this.USER_FOUND = true;
+        this.helpersCache = new node_cache_1.default({ stdTTL: 300 }); // 5 min
+        this.reputationCache = new node_cache_1.default({ stdTTL: 432000 }); // 5 jours
     }
     findAllUsers() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const users = yield User_model_1.User.findAll();
+                const users = yield User_model_1.User.findAll({ attributes: { exclude: ['password'] } });
                 if (!users || users.length === 0) {
                     logger_1.default.warn(error_messages_1.default.errorFetchingUsers());
                     return undefined;
@@ -46,10 +51,11 @@ class UserRepository {
                     whereClause.deleted = deleted;
                 }
                 const user = yield User_model_1.User.findOne({
-                    where: whereClause
+                    where: whereClause,
+                    attributes: { exclude: ['password'] }
                 });
                 if (user === null) {
-                    logger_1.default.error('User for id %d: %s wasn\'t found', id);
+                    logger_1.default.error("User for id %d: %s wasn't found", id);
                     return null;
                 }
                 return user;
@@ -60,27 +66,13 @@ class UserRepository {
             }
         });
     }
-    findUserByEmail(email) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const user = yield User_model_1.User.findOne({
-                    where: { email: email }
-                });
-                if (user === null) {
-                    return undefined;
-                }
-                return user;
-            }
-            catch (error) {
-                logger_1.default.error('Error in UserRepository.findUserByEmail: %s', (0, errorHandler_middlewares_1.getErrorMessage)(error));
-                return undefined;
-            }
-        });
-    }
     findAllStudents() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield User_model_1.User.findAll({ where: { role: 'student' } });
+                return yield User_model_1.User.findAll({
+                    where: { role: 'student' },
+                    attributes: { exclude: ['password'] }
+                });
             }
             catch (error) {
                 logger_1.default.error('Error in UserRepository.findAllStudents: %s', (0, errorHandler_middlewares_1.getErrorMessage)(error));
@@ -88,30 +80,52 @@ class UserRepository {
             }
         });
     }
+    //TODO - Ca serait bien d'alleger cette paté
     findAllHelpers() {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const users = yield User_model_1.User.findAll({
-                    where: { role: 'helper' },
-                    include: [{ model: Reputation_model_1.Reputation, as: 'reputations' }]
-                });
-                if (!users || users.length === 0) {
-                    logger_1.default.error('No helpers were found');
-                    return undefined;
+            // On chercher si les helpers sont dans le cache
+            const cachedHelpers = this.helpersCache.get('allHelpers');
+            if (cachedHelpers) {
+                // On récupère la reputation du cache si dispo
+                for (const helper of cachedHelpers) {
+                    let noteSemaine = this.reputationCache.get(`noteSemaine_${helper.id}`);
+                    // Si pas en cache, on va la chercher et on la met en cache
+                    if (noteSemaine === undefined) {
+                        noteSemaine = yield this._reputationHistoryService.getLastWeeklyNote(helper.id);
+                    }
+                    helper.noteSemaine = noteSemaine;
                 }
-                return users;
+                return cachedHelpers;
             }
-            catch (error) {
-                logger_1.default.error('Error in UserRepository.findAllHelpers: %s', (0, errorHandler_middlewares_1.getErrorMessage)(error));
+            // sinon on va chercher dans la bdd
+            const users = yield User_model_1.User.findAll({
+                where: { role: 'helper' },
+                attributes: { exclude: ['password'] }
+            });
+            if (!users || users.length === 0) {
+                logger_1.default.error('No helpers were found');
                 return undefined;
             }
+            // On met en cache court les helpers (sans les reputations) c
+            const usersToCache = users.map((u) => u.toJSON());
+            this.helpersCache.set('allHelpers', usersToCache);
+            for (const helper of usersToCache) {
+                let noteSemaine = this.reputationCache.get(`noteSemaine_${helper.id}`);
+                if (noteSemaine === undefined) {
+                    noteSemaine = yield this._reputationHistoryService.getLastWeeklyNote(helper.id);
+                    this.reputationCache.set(`noteSemaine_${helper.id}`, noteSemaine);
+                }
+                helper.noteSemaine = noteSemaine;
+            }
+            return usersToCache;
         });
     }
     isUserExists(email_1, firstname_1) {
         return __awaiter(this, arguments, void 0, function* (email, firstname, deleted = false) {
             try {
                 const user = yield User_model_1.User.findOne({
-                    where: { email: email, firstname: firstname, deleted }
+                    where: { email: email, firstname: firstname, deleted },
+                    attributes: { exclude: ['password'] }
                 });
                 if (user !== null)
                     return this.USER_FOUND;
@@ -141,24 +155,40 @@ class UserRepository {
     }
     findHelper(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const helper = yield User_model_1.User.findOne({
-                    where: { id: id, role: 'helper' },
-                    include: [
-                        { model: Reputation_model_1.Reputation, as: 'reputations' },
-                        { model: Availability_model_1.Availability, as: 'availabilities' }
-                    ]
-                });
-                if (helper === null) {
-                    logger_1.default.error('Helper for id %d: %s wasn\'t found', id);
-                    return undefined;
+            // On vérifie si le helper est dans le cache court
+            const cachedHelper = this.helpersCache.get('allHelpers');
+            if (cachedHelper) {
+                const helper = cachedHelper.find((h) => h.id === id);
+                if (helper) {
+                    // On ajoute la noteSemaine depuis le cache long ou la BDD
+                    let noteSemaine = this.reputationCache.get(`noteSemaine_${helper.id}`);
+                    if (noteSemaine === undefined) {
+                        noteSemaine = yield this._reputationHistoryService.getLastWeeklyNote(helper.id);
+                        this.reputationCache.set(`noteSemaine_${helper.id}`, noteSemaine);
+                    }
+                    helper.noteSemaine = noteSemaine;
+                    return helper;
                 }
-                return helper;
             }
-            catch (error) {
-                logger_1.default.error('Error in UserRepository.findById for id %d: %s', id, (0, errorHandler_middlewares_1.getErrorMessage)(error));
+            // Sinon on cherche dans la bdd
+            const helper = yield User_model_1.User.findOne({
+                where: { id: id, role: 'helper' },
+                include: [{ model: Availability_model_1.Availability, as: 'availabilities' }],
+                attributes: { exclude: ['password'] }
+            });
+            if (helper === null) {
+                logger_1.default.error("Helper for id %d: %s wasn't found", id);
                 return undefined;
             }
+            let allHelpers = this.helpersCache.get('allHelpers') || [];
+            if (!allHelpers.find((h) => h.id === helper.id)) {
+                allHelpers.push(helper.toJSON());
+                this.helpersCache.set('allHelpers', allHelpers);
+            }
+            const noteSemaine = yield this._reputationHistoryService.getLastWeeklyNote(helper.id);
+            this.reputationCache.set(`noteSemaine_${helper.id}`, noteSemaine);
+            helper.noteSemaine = noteSemaine;
+            return helper;
         });
     }
     findStudent(id) {
@@ -166,7 +196,7 @@ class UserRepository {
             try {
                 const student = yield User_model_1.User.findOne({ where: { id: id, role: 'student' } });
                 if (student === null) {
-                    logger_1.default.error('Student for id %d: %s wasn\'t found', id);
+                    logger_1.default.error("Student for id %d: %s wasn't found", id);
                     return undefined;
                 }
                 return student;

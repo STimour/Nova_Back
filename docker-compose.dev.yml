@@ -1,7 +1,7 @@
 services:
     backend:
         image: node:18
-        container_name: projetfin-dev
+        container_name: nova-back-dev
         working_dir: /app
         volumes:
             - .:/app

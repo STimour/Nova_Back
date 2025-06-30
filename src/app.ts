@@ -3,14 +3,18 @@ import sequelize from './configDB/db';
 import MainRouter from './routes/main.routes';
 import cors from 'cors';
 import { errorHandler } from './middlwares/errorHandler.middlewares';
+import UserController from './controllers/user.controller';
 
 class App {
     public app: Application;
     public port: number;
 
-    constructor(port: number) {
+    private _userController: UserController;
+
+    constructor(port: number, _userController = new UserController()) {
         this.app = express();
         this.port = port;
+        this._userController = _userController;
 
         this.initializeMiddlewares();
         this.initializeRoutes();
@@ -24,9 +28,6 @@ class App {
     }
 
     private initializeRoutes(): void {
-        this.app.get('/', (req: Request, res: Response) => {
-            res.send('Hello, SkillUp API!');
-        });
         // Préfixe pour toutes les routes de l'API
         this.app.use('/api', MainRouter);
 

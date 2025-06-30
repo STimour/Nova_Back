@@ -13,3 +13,8 @@ down:
 # Commande pour construire l'image sans lancer
 build:
 	docker-compose -f docker-compose.dev.yml build
+
+# Commande pour initialiser les données
+seed:	
+	docker-compose exec nova-back-dev npm run seed
+

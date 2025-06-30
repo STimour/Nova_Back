@@ -1,5 +1,6 @@
 import { getErrorMessage } from '../middlwares/errorHandler.middlewares';
 import { Token } from '../models/Token.model';
+import { User } from '../models/User.model';
 import logger from '../utils/logger';
 import { IAuthRepository } from './interfaces/IAuthRepository';
 
@@ -81,6 +82,24 @@ class AuthRepository implements IAuthRepository {
         }
 
         return true; // Désactivation réussie
+    }
+
+    // utilisé pour l'aut mais avoir une autre façon pour ne pas retourner le mdp
+    public async findUserByEmail(email: string): Promise<User | undefined> {
+        try {
+            const user: User | null = await User.findOne({
+                where: { email: email }
+            });
+
+            if (user === null) {
+                return undefined;
+            }
+
+            return user;
+        } catch (error) {
+            logger.error('Error in UserRepository.findUserByEmail: %s', getErrorMessage(error));
+            return undefined;
+        }
     }
 }
 export default AuthRepository;
