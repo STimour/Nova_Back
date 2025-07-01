@@ -6,6 +6,8 @@ import dotenv from 'dotenv';
 import { IJwtPayloadExtended } from '../typeExtends/jwt.extends';
 import logger from '../utils/logger';
 import AuthRepository from '../repositories/auth.repository';
+import { User } from '../models/User.model';
+import { getErrorMessage } from '../middlwares/errorHandler.middlewares';
 
 dotenv.config();
 
@@ -195,6 +197,24 @@ class AuthService {
             return parts[1];
         }
         return '';
+    }
+
+    public async findUserByEmail(email: string): Promise<User | undefined> {
+        try {
+            const user: User | undefined = await this._authRepository.findUserByEmail(email);
+            if (user === undefined) {
+                logger.info('User not found: %s', email);
+                return undefined;
+            }
+            return user;
+        } catch (error) {
+            logger.error(
+                'Error in AuthService.findUserByEmail: %s; %s',
+                email,
+                getErrorMessage(error)
+            );
+            return undefined;
+        }
     }
 }
 

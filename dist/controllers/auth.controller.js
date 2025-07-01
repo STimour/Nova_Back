@@ -50,7 +50,7 @@ class AutController {
                     res.status(400).json({ message: 'Email and password are required' });
                     return;
                 }
-                const user = yield this._userService.findUserByEmail(email);
+                const user = yield this._authService.findUserByEmail(email);
                 if (!user) {
                     res.status(401).json({ message: 'Invalid credentials' });
                     return;

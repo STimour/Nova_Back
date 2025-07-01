@@ -12,14 +12,13 @@ class SessionController {
     // POST /session/create
     public async createSession(req: Request, res: Response): Promise<void> {
         try {
-            const sessionData: Session = req.body
-            if(!sessionData.idHelper){
+            const sessionData: Session = req.body;
+            if (!sessionData.idHelper) {
                 res.status(400).json({ error: 'idUser is required' });
                 return;
             }
             //TODO - ajouter des vérifications
             await this._sessionService.createSession(sessionData);
-
         } catch (error) {
             res.status(500).json({ error: 'Internal server error' });
             return;

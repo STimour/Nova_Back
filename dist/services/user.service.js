@@ -19,6 +19,8 @@ const errorHandler_middlewares_1 = require("../middlwares/errorHandler.middlewar
 const logger_1 = __importDefault(require("../utils/logger"));
 const error_messages_1 = __importDefault(require("../utils/error.messages"));
 const reputationHistory_service_1 = require("./reputationHistory.service");
+//TODO -  || utiliser la class ErrorMessages
+//TODO - revoir la gestion des types de renvoi pour tous le flux des methodes
 class UserService extends base_service_1.BaseService {
     constructor() {
         super();
@@ -55,22 +57,6 @@ class UserService extends base_service_1.BaseService {
             }
         });
     }
-    findUserByEmail(email) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const user = yield this._userRepository.findUserByEmail(email);
-                if (user === undefined) {
-                    logger_1.default.info('User not found: %s', email);
-                    return undefined;
-                }
-                return user;
-            }
-            catch (error) {
-                logger_1.default.error('Error in UserService.findUserByEmail: %s; %s', email, (0, errorHandler_middlewares_1.getErrorMessage)(error));
-                return undefined;
-            }
-        });
-    }
     /**
      * Retourne tous les helpers avec leur note hebdomadaire.
      */
@@ -78,15 +64,9 @@ class UserService extends base_service_1.BaseService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const helpers = yield this._userRepository.findAllHelpers();
-                const reputationHistoryService = new reputationHistory_service_1.ReputationHistoryService();
                 if (helpers === undefined)
                     return undefined;
-                // Ajoute la note de la semaine à chaque helper
-                const helpersWithNote = yield Promise.all(helpers.map((helper) => __awaiter(this, void 0, void 0, function* () {
-                    const noteSemaine = yield reputationHistoryService.getLastWeeklyNote(helper.id);
-                    return Object.assign(Object.assign({}, helper.toJSON()), { noteSemaine: Number(noteSemaine.toFixed(2)) });
-                })));
-                return helpersWithNote;
+                return helpers;
             }
             catch (error) {
                 logger_1.default.error('Error in UserService.getAllHelpers: %s', (0, errorHandler_middlewares_1.getErrorMessage)(error));

@@ -51,6 +51,19 @@ Session.init({
     endTime: {
         type: sequelize_1.DataTypes.TIME,
         allowNull: false
+    },
+    status: {
+        type: sequelize_1.DataTypes.ENUM('available', 'pending', 'confirmed', 'refused'),
+        allowNull: false,
+        defaultValue: 'available'
+    },
+    requestedBy: {
+        type: sequelize_1.DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+            model: User_model_1.User,
+            key: 'id'
+        }
     }
 }, {
     sequelize: db_1.default,

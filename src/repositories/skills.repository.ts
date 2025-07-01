@@ -3,11 +3,11 @@ import logger from '../utils/logger';
 import ErrorMessages from '../utils/error.messages';
 
 class SkillRepository {
-    public async create(SkillData: any): Promise<Skill | null> {
+    public async create(skillDate: any): Promise<Skill | null> {
         try {
-            return await Skill.create(SkillData);
+            return await Skill.create(skillDate);
         } catch (error) {
-            logger.error(ErrorMessages.errorCreatingSkill(), SkillData, error);
+            logger.error(ErrorMessages.errorCreatingSkill(), skillDate, error);
             return null;
         }
     }

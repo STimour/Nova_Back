@@ -17,10 +17,12 @@ const db_1 = __importDefault(require("./configDB/db"));
 const main_routes_1 = __importDefault(require("./routes/main.routes"));
 const cors_1 = __importDefault(require("cors"));
 const errorHandler_middlewares_1 = require("./middlwares/errorHandler.middlewares");
+const user_controller_1 = __importDefault(require("./controllers/user.controller"));
 class App {
-    constructor(port) {
+    constructor(port, _userController = new user_controller_1.default()) {
         this.app = (0, express_1.default)();
         this.port = port;
+        this._userController = _userController;
         this.initializeMiddlewares();
         this.initializeRoutes();
         this.initializeDatabaseConnection();
@@ -31,9 +33,6 @@ class App {
         this.app.use((0, cors_1.default)());
     }
     initializeRoutes() {
-        this.app.get('/', (req, res) => {
-            res.send('Hello, SkillUp API!');
-        });
         // Préfixe pour toutes les routes de l'API
         this.app.use('/api', main_routes_1.default);
         // Middleware global pour gérer les erreurs

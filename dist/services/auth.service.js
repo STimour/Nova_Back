@@ -19,7 +19,12 @@ const argon2_1 = __importDefault(require("argon2"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const logger_1 = __importDefault(require("../utils/logger"));
 const auth_repository_1 = __importDefault(require("../repositories/auth.repository"));
+const errorHandler_middlewares_1 = require("../middlwares/errorHandler.middlewares");
 dotenv_1.default.config();
+//TODO - ajouter l'envoie des mails
+//TODO -  || utiliser la class ErrorMessages
+//TODO - ajouter le logger
+//TODO - revoir la gestion des types de renvoi pour tous le flux des methodes
 class AuthService {
     constructor(_authRepository = new auth_repository_1.default()) {
         this.DEFAULT_SESSION_HOURS = 1; // Pour une session normale
@@ -171,6 +176,22 @@ class AuthService {
             return parts[1];
         }
         return '';
+    }
+    findUserByEmail(email) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const user = yield this._authRepository.findUserByEmail(email);
+                if (user === undefined) {
+                    logger_1.default.info('User not found: %s', email);
+                    return undefined;
+                }
+                return user;
+            }
+            catch (error) {
+                logger_1.default.error('Error in AuthService.findUserByEmail: %s; %s', email, (0, errorHandler_middlewares_1.getErrorMessage)(error));
+                return undefined;
+            }
+        });
     }
 }
 exports.default = AuthService;

@@ -1,20 +1,40 @@
-Commande pour lancer l'execution du projet en mode dev car la prod pas forcément préte et sécuré
+# Lancer l'execution du projet en mode dev car la prod n'est pas faite comme il faut
 
-## docker-compose -f docker-compose.dev.yml up
+# 1. Etape (il est possible d'utiliser les alias)
+
+- **docker-compose -f docker-compose.dev.yml up**
 
 Pour production (n'est pas lancer la bdd n'est pas prête)
 
-## docker-compose -f docker-compose.yml up --build
+- **docker-compose -f docker-compose.yml up --build**
 
 Il est aussi possibl d'utiliser les alias créer à l'aide de Makefile:
 
 Pour lancer la version dev :
 
-## make dev
+- **make dev**
 
 Pour lancer la version prod :
 
-## make prod
+- **make prod**
+
+# 2. Etape
+
+Pour initialiser les données fictives du scripts/seed.ts
+
+- **docker exec -it nova-back-dev sh**
+
+et ensuite on taper dedans :
+
+- **npm run seed**
+
+pour sortir du it on tape **exit**
+
+l'alias ne fonctionne pas \*\*TODO - à corriger
+
+- **make seed**
+
+# 3. Etape
 
 Pour arrêter les conteneurs :
 
@@ -24,9 +44,11 @@ Pour construire l’image sans lancer les conteneurs :
 
 ## make build
 
-pour formater le projet il faut aller dans le terminal du container (ça serait bien d'ajouter les alias )
+pour formater avec prittier le projet il faut aller dans le terminal du container (ça serait bien d'ajouter les alias )
 on utilie sh car à priori plupart des images Node officielles Alpine n’ont que sh par défaut.
 
-## docker exec -it projetfin-dev sh
+## docker exec -it nova-back-dev sh
 
-et maintant on fait npm run lint ou format
+et maintant on fait **npm run lint** ou **format**
+
+pour sortir du it on tape **exit**

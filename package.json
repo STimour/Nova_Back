@@ -12,7 +12,8 @@
         "dev": "concurrently \"npx tsc --watch\" \"nodemon -q dist/server.js\"",
         "lint": "eslint . --ext .ts",
         "lint:fix": "eslint . --ext .ts --fix",
-        "format": "prettier --write ."
+        "format": "prettier --write .",
+        "seed": "ts-node src/script/seed.ts"
     },
     "dependencies": {
         "@types/bcrypt": "^5.0.2",
@@ -25,6 +26,7 @@
         "dotenv": "^16.5.0",
         "express": "^5.1.0",
         "jsonwebtoken": "^9.0.2",
+        "node-cache": "^5.1.2",
         "node-cron": "^4.1.1",
         "nodemailer": "^7.0.3",
         "pg": "^8.15.1",

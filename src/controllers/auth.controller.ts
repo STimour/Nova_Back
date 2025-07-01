@@ -44,7 +44,7 @@ class AutController {
                 return;
             }
 
-            const user = await this._userService.findUserByEmail(email);
+            const user = await this._authService.findUserByEmail(email);
 
             if (!user) {
                 res.status(401).json({ message: 'Invalid credentials' });
