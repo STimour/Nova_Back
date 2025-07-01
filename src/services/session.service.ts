@@ -136,7 +136,6 @@ class SessionService {
                 );
             }
         } catch (mailError) {
-
             // TODO - Revoir la gestion des erreurs
             logger.error(ErrorMessages.badRequest(), getErrorMessage(mailError));
         }

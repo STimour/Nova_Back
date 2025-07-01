@@ -1,6 +1,7 @@
 import { getErrorMessage } from '../middlwares/errorHandler.middlewares';
 import { Token } from '../models/Token.model';
 import { User } from '../models/User.model';
+import ErrorMessages from '../utils/error.messages';
 import logger from '../utils/logger';
 import { IAuthRepository } from './interfaces/IAuthRepository';
 
@@ -23,8 +24,9 @@ class AuthRepository implements IAuthRepository {
 
             return token;
         } catch (error) {
+            // TODO - Revoir la gestion des erreurs
             logger.error(
-                'Error while verifing token: %s, %d; error: %s',
+                ErrorMessages.badRequest(),
                 newAuthToken,
                 userId,
                 getErrorMessage(error)
@@ -48,7 +50,7 @@ class AuthRepository implements IAuthRepository {
 
             return token as Token;
         } catch (error) {
-            logger.error('Error while verifing token: %s', tokenString, getErrorMessage(error));
+            logger.error(ErrorMessages.badRequest(), tokenString, getErrorMessage(error));
             return undefined;
         }
     }
@@ -62,7 +64,9 @@ class AuthRepository implements IAuthRepository {
         });
 
         if (token === null) {
-            logger.error('Error while desactivateAuthToken, token: %s, was not found', tokenString);
+            // Token non trouvé ou déjà désactivé
+            // TODO - Revoir la gestion des erreurs
+            logger.error(ErrorMessages.badRequest(), tokenString);
             return false;
         }
 
@@ -77,7 +81,7 @@ class AuthRepository implements IAuthRepository {
         );
 
         if (updatedCount === 0) {
-            logger.error('Error while desactivateAuthToken: %s:', tokenString);
+            logger.error(ErrorMessages.badRequest(), tokenString);
             return false;
         }
 
@@ -97,7 +101,7 @@ class AuthRepository implements IAuthRepository {
 
             return user;
         } catch (error) {
-            logger.error('Error in UserRepository.findUserByEmail: %s', getErrorMessage(error));
+            logger.error(ErrorMessages.errorFetchingUser(), getErrorMessage(error));
             return undefined;
         }
     }
