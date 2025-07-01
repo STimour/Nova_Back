@@ -1,5 +1,7 @@
 # Lancer l'execution du projet en mode dev car la prod n'est pas faite comme il faut
 
+# IMPORTANT les allias fonctionne si l'utilisation Makefile est installer 
+
 # 1. Etape (il est possible d'utiliser les alias)
 
 - **docker-compose -f docker-compose.dev.yml up**

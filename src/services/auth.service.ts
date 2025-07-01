@@ -8,6 +8,7 @@ import logger from '../utils/logger';
 import AuthRepository from '../repositories/auth.repository';
 import { User } from '../models/User.model';
 import { getErrorMessage } from '../middlwares/errorHandler.middlewares';
+import ErrorMessages from '../utils/error.messages';
 
 dotenv.config();
 
@@ -103,13 +104,14 @@ class AuthService {
             );
 
             if (!newAuthToken) {
-                throw new Error("Impossible de créer le token d'authentification.");
+                throw new Error('Impossible de créer le token d\'authentification.');
             }
 
             return `${this.JWT_PREFIX} ${tokenString}`;
         } catch (error) {
-            logger.error('Error creating auth token:', error);
-            throw new Error("Impossible de créer le token d'authentification.");
+            // TODO - Revoir la gestion des erreurs
+            logger.error(ErrorMessages.badRequest(), getErrorMessage(error));
+            throw new Error('Impossible de créer le token d\'authentification.');
         }
     }
 
@@ -187,7 +189,7 @@ class AuthService {
             return true;
         } catch (error) {
             console.error('Error deactivating auth token:', error);
-            throw new Error("Impossible de désactiver le token d'authentification.");
+            throw new Error('Impossible de désactiver le token d\'authentification.');
         }
     }
 
@@ -207,12 +209,11 @@ class AuthService {
                 return undefined;
             }
             return user;
-        } catch (error) {
-            logger.error(
-                'Error in AuthService.findUserByEmail: %s; %s',
-                email,
-                getErrorMessage(error)
-            );
+        } catch (
+            error
+            // TODO - Revoir la gestion des erreurs
+        ) {
+            logger.error(ErrorMessages.badRequest(), email, getErrorMessage(error));
             return undefined;
         }
     }
