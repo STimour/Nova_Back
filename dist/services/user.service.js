@@ -38,7 +38,7 @@ class UserService extends base_service_1.BaseService {
                 return users;
             }
             catch (error) {
-                logger_1.default.error('Error in UserService.findAllUsers: %s', (0, errorHandler_middlewares_1.getErrorMessage)(error));
+                logger_1.default.error(error_messages_1.default.errorFetchingUsers(), (0, errorHandler_middlewares_1.getErrorMessage)(error));
                 throw error;
             }
         });
@@ -52,7 +52,7 @@ class UserService extends base_service_1.BaseService {
                 return user;
             }
             catch (error) {
-                logger_1.default.error('Error in UserService.findUser: %s', (0, errorHandler_middlewares_1.getErrorMessage)(error));
+                logger_1.default.error(error_messages_1.default.errorFetchingUser(), (0, errorHandler_middlewares_1.getErrorMessage)(error));
                 throw error;
             }
         });
@@ -69,7 +69,7 @@ class UserService extends base_service_1.BaseService {
                 return helpers;
             }
             catch (error) {
-                logger_1.default.error('Error in UserService.getAllHelpers: %s', (0, errorHandler_middlewares_1.getErrorMessage)(error));
+                logger_1.default.error(error_messages_1.default.errorFetchingHelpers(), (0, errorHandler_middlewares_1.getErrorMessage)(error));
                 throw error;
             }
         });
@@ -88,7 +88,7 @@ class UserService extends base_service_1.BaseService {
                 return Object.assign(Object.assign({}, helper.toJSON()), { noteSemaine: Number(noteSemaine.toFixed(2)) });
             }
             catch (error) {
-                logger_1.default.error('Error in UserService.findHelper: %s', (0, errorHandler_middlewares_1.getErrorMessage)(error));
+                logger_1.default.error(error_messages_1.default.errorFetchingUser(), (0, errorHandler_middlewares_1.getErrorMessage)(error));
                 throw error;
             }
         });
@@ -103,7 +103,7 @@ class UserService extends base_service_1.BaseService {
                 return students;
             }
             catch (error) {
-                logger_1.default.error('Error in UserService.findAllStudents: %s', (0, errorHandler_middlewares_1.getErrorMessage)(error));
+                logger_1.default.error(error_messages_1.default.errorFetchingStudents(), (0, errorHandler_middlewares_1.getErrorMessage)(error));
                 throw error;
             }
         });
@@ -115,7 +115,7 @@ class UserService extends base_service_1.BaseService {
                 return student;
             }
             catch (error) {
-                logger_1.default.error('Error in UserService.findStudent: %s', (0, errorHandler_middlewares_1.getErrorMessage)(error));
+                logger_1.default.error(error_messages_1.default.errorFetchingUser(), (0, errorHandler_middlewares_1.getErrorMessage)(error));
                 throw error;
             }
         });
@@ -141,9 +141,8 @@ class UserService extends base_service_1.BaseService {
                 return this.WORK_DONE;
             }
             catch (error) {
-                // a supprimer pour la prod
-                console.error('Error creating user:', (0, errorHandler_middlewares_1.getErrorMessage)(error));
-                logger_1.default.error('Error creating user:', userData.firstname, userData.lastname, (0, errorHandler_middlewares_1.getErrorMessage)(error));
+                // TODO - revoir la gestion des erreurs
+                logger_1.default.error(error_messages_1.default.errorCreatingUser(), userData.firstname, userData.lastname, (0, errorHandler_middlewares_1.getErrorMessage)(error));
                 throw error;
             }
         });
@@ -152,7 +151,7 @@ class UserService extends base_service_1.BaseService {
         return __awaiter(this, void 0, void 0, function* () {
             const user = yield this._userRepository.findUser(parseInt(userToDelete.id), false);
             if (user === null) {
-                logger_1.default.error(error_messages_1.default.notFound(), userToDelete.id);
+                logger_1.default.error(error_messages_1.default.errorDeletingUser(), userToDelete.id);
                 return false;
             }
             if (!userToDelete.toDelete) {

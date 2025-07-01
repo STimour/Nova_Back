@@ -1,6 +1,7 @@
 import nodemailer from 'nodemailer';
 import logger from '../utils/logger';
 import ErrorMessages from '../utils/error.messages';
+import { getErrorMessage } from '../middlwares/errorHandler.middlewares';
 
 export const mailer = nodemailer.createTransport({
     host: process.env.SMTP_HOST,

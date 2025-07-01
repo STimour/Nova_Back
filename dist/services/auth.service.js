@@ -20,6 +20,7 @@ const dotenv_1 = __importDefault(require("dotenv"));
 const logger_1 = __importDefault(require("../utils/logger"));
 const auth_repository_1 = __importDefault(require("../repositories/auth.repository"));
 const errorHandler_middlewares_1 = require("../middlwares/errorHandler.middlewares");
+const error_messages_1 = __importDefault(require("../utils/error.messages"));
 dotenv_1.default.config();
 //TODO - ajouter l'envoie des mails
 //TODO -  || utiliser la class ErrorMessages
@@ -89,13 +90,14 @@ class AuthService {
             try {
                 const newAuthToken = yield this._authRepository.createToken(tokenString, userId, expirationDate);
                 if (!newAuthToken) {
-                    throw new Error("Impossible de créer le token d'authentification.");
+                    throw new Error('Impossible de créer le token d\'authentification.');
                 }
                 return `${this.JWT_PREFIX} ${tokenString}`;
             }
             catch (error) {
-                logger_1.default.error('Error creating auth token:', error);
-                throw new Error("Impossible de créer le token d'authentification.");
+                // TODO - Revoir la gestion des erreurs
+                logger_1.default.error(error_messages_1.default.badRequest(), (0, errorHandler_middlewares_1.getErrorMessage)(error));
+                throw new Error('Impossible de créer le token d\'authentification.');
             }
         });
     }
@@ -166,7 +168,7 @@ class AuthService {
             }
             catch (error) {
                 console.error('Error deactivating auth token:', error);
-                throw new Error("Impossible de désactiver le token d'authentification.");
+                throw new Error('Impossible de désactiver le token d\'authentification.');
             }
         });
     }
@@ -187,8 +189,10 @@ class AuthService {
                 }
                 return user;
             }
-            catch (error) {
-                logger_1.default.error('Error in AuthService.findUserByEmail: %s; %s', email, (0, errorHandler_middlewares_1.getErrorMessage)(error));
+            catch (error
+            // TODO - Revoir la gestion des erreurs
+            ) {
+                logger_1.default.error(error_messages_1.default.badRequest(), email, (0, errorHandler_middlewares_1.getErrorMessage)(error));
                 return undefined;
             }
         });
