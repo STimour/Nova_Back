@@ -6,6 +6,8 @@ import logger from '../utils/logger';
 import ErrorMessages from '../utils/error.messages';
 import { IUserToDelete } from '../models/interfaces/IUserToDelete.interface';
 
+//TODO - revoir le model User - peut être vaut mieux separer les deux types et avoir deux tables
+
 class UserController {
     private readonly _userService;
 

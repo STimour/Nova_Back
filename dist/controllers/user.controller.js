@@ -16,6 +16,7 @@ const user_service_1 = __importDefault(require("../services/user.service"));
 const errorHandler_middlewares_1 = require("../middlwares/errorHandler.middlewares"); // Importer pour logger
 const logger_1 = __importDefault(require("../utils/logger"));
 const error_messages_1 = __importDefault(require("../utils/error.messages"));
+//TODO - revoir le model User - peut être vaut mieux separer les deux types et avoir deux tables
 class UserController {
     constructor() {
         this._userService = new user_service_1.default();

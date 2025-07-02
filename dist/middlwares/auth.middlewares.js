@@ -20,10 +20,7 @@ const logger_1 = __importDefault(require("../utils/logger"));
 const error_messages_1 = __importDefault(require("../utils/error.messages"));
 class MiddlewareService {
     constructor(_authService = new auth_service_1.default()) {
-        this._authService = _authService;
-    }
-    checkToken(req, res, next) {
-        return __awaiter(this, void 0, void 0, function* () {
+        this.checkToken = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
             const fullToken = req.headers.authorization;
             if (!fullToken || typeof fullToken !== 'string') {
                 logger_1.default.warn(error_messages_1.default.missingAuth(), fullToken !== null && fullToken !== void 0 ? fullToken : '');
@@ -37,9 +34,11 @@ class MiddlewareService {
                     res.status(401).json({ error: error_messages_1.default.invalidToken() });
                     return;
                 }
-                const whereClause = Object.assign({ id: decodedPayload.userId, email: decodedPayload.userEmail, deleted: false }, (decodedPayload.userBirthdate && {
-                    birthdate: decodedPayload.userBirthdate
-                }));
+                const whereClause = {
+                    id: decodedPayload.userId,
+                    email: decodedPayload.userEmail,
+                    deleted: false
+                };
                 const userRecord = yield User_model_1.User.findOne({ where: whereClause });
                 if (!userRecord) {
                     logger_1.default.warn(error_messages_1.default.forbidden(), JSON.stringify(whereClause));
@@ -58,6 +57,7 @@ class MiddlewareService {
                 });
             }
         });
+        this._authService = _authService;
     }
 }
 exports.MiddlewareService = MiddlewareService;

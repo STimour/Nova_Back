@@ -9,15 +9,17 @@ const application = new App(port);
 
 application.listen();
 
+
+const reputationHistoryService = new ReputationHistoryService();
+cron.schedule('0 0 * * 0', () => {
+    // chaque dimanche à 1h du matin
+    reputationHistoryService.saveWeeklyReputation();
+});
+
 // Planification du cron pour mettre à jour les super helpers chaque semaine
 const badgeService = new HelperBadgeService();
-cron.schedule('0 0 * * 0', () => {
+cron.schedule('0 1 * * 0', () => {
     // chaque dimanche à minuit
     badgeService.updateSuperHelpers();
 });
 
-const reputationHistoryService = new ReputationHistoryService();
-cron.schedule('0 1 * * 0', () => {
-    // chaque dimanche à 1h du matin
-    reputationHistoryService.saveWeeklyReputation();
-});

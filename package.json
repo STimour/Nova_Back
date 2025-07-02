@@ -13,7 +13,10 @@
         "lint": "eslint . --ext .ts",
         "lint:fix": "eslint . --ext .ts --fix",
         "format": "prettier --write .",
-        "seed": "ts-node src/script/seed.ts"
+        "seed": "ts-node src/script/seed.ts",
+        "cron:all": "npx ts-node src/script/runCronTasks.ts",
+        "cron:badges": "npx ts-node -e \"import('./src/services/helperBadge.service').then(m => new m.HelperBadgeService().updateSuperHelpers())\"",
+        "cron:reputation": "npx ts-node -e \"import('./src/services/reputationHistory.service').then(m => new m.ReputationHistoryService().saveWeeklyReputation())\""
     },
     "dependencies": {
         "@types/bcrypt": "^5.0.2",

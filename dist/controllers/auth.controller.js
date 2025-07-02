@@ -8,6 +8,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                t[p[i]] = s[p[i]];
+        }
+    return t;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -21,6 +32,7 @@ class AutController {
         this._authService = new auth_service_1.default();
         this._userService = new user_service_1.default();
     }
+    //TODO - revoir le type de newUser car le front envoie aussi les SkillsCategorie - plus de detail dans le controller 
     createUser(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -31,7 +43,8 @@ class AutController {
                     res.status(400).json({ message: 'Error creating user' });
                     return;
                 }
-                res.status(201).json(newUser);
+                const { password } = newUser, userWithoutPassword = __rest(newUser, ["password"]);
+                res.status(201).json(userWithoutPassword);
                 return;
             }
             catch (error) {

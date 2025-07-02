@@ -31,7 +31,7 @@ class CategoryController {
                 res.status(500).json(ErrorMessages.notFound());
                 return;
             }
-            res.status(201).json(categories);
+            res.status(200).json(categories);
             return;
         } catch (error) {
             res.status(500).json(ErrorMessages.badRequest());

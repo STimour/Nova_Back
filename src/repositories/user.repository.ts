@@ -8,6 +8,7 @@ import ErrorMessages from '../utils/error.messages';
 import NodeCache from 'node-cache';
 import { ReputationHistoryService } from '../services/reputationHistory.service';
 import { HelperWithNote } from '../typeExtends/user.extends';
+import { error } from 'console';
 
 //TODO - revoir comment on fait le cache - trouver comment créer un service à part
 
@@ -143,26 +144,37 @@ class UserRepository implements IUserRepository {
         }
     }
 
-    public async createUser(user: User): Promise<boolean> {
+    public async createUser(lastname: string, firstname: string, email: string, password: string, sexe: string, birthdate: Date, role: string, avatar: string): Promise<boolean> {
         try {
-            console.log('User reçu pour création:', user);
-            const newUser = await User.create();
+            const newUser = await User.create({
+                lastname,
+                firstname,
+                email,
+                password,
+                sexe,
+                birthdate,
+                role,
+                avatar
+            });
+
+
 
             if (!newUser) {
                 logger.warn(
                     ErrorMessages.errorCreatingUser(),
-                    user.firstname,
-                    user.lastname
+                    firstname,
+                    lastname
                 );
-                return false;
+                throw error;
             }
 
             return true;
         } catch (error) {
+              console.log('Erreur lors de la création user:', error);
             logger.error(
                 ErrorMessages.errorCreatingUser(),
-                user.firstname,
-                user.lastname,
+                firstname,
+                lastname,
                 getErrorMessage(error)
             );
             return false;
@@ -212,7 +224,7 @@ class UserRepository implements IUserRepository {
 
     public async findStudent(id: number): Promise<User | undefined> {
         try {
-            const student = await User.findOne({ where: { id: id, role: 'student' } });
+            const student = await User.findOne({ where: { id: id } });
             if (student === null) {
                 logger.error(ErrorMessages.errorFetchingUser(), id);
                 return undefined;

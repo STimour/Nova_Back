@@ -78,7 +78,7 @@ class UserService extends BaseService {
             const reputationHistoryService = new ReputationHistoryService();
             const noteSemaine = await reputationHistoryService.getLastWeeklyNote(helper.id);
             return {
-                ...helper.toJSON(),
+                helper,
                 noteSemaine: Number(noteSemaine.toFixed(2))
             };
         } catch (error) {
@@ -111,62 +111,64 @@ class UserService extends BaseService {
         }
     }
 
-    public async createUser(userData: IUser): Promise<boolean> {
+    public async createUser(userData: any): Promise<boolean> {
         try {
+            console.log(userData)
             if (!this.verifyUserData(userData)) return !this.IS_USER_DATA_VALID;
 
-            // Sélectionne uniquement les champs du modèle User
-            const allowedFields = [
-                'lastname', 'firstname', 'email', 'password', 'sexe', 'birthdate', 'role', 'avatar'
-            ];
-            const userToCreate: any = {};
-            for (const key of allowedFields) {
-                if (userData[key as keyof IUser] !== undefined) userToCreate[key] = userData[key as keyof IUser];
-            }
-            userToCreate.deleted = false;
-            if (!userToCreate.role) userToCreate.role = 'student';
+            if (!userData.role) userData.role = 'student';
 
             //TODO Corriger côté front 
-            if (userToCreate.birthdate && typeof userToCreate.birthdate === 'string') {
-                userToCreate.birthdate = new Date(userToCreate.birthdate);
+            if (userData.birthdate && typeof userData.birthdate === 'string') {
+                userData.birthdate = new Date(userData.birthdate);
             }
 
             // Hash du mot de passe
-            userToCreate.password = (await this._authService.hashPassword(userToCreate.password)).toString();
+            userData.password = (await this._authService.hashPassword(userData.password)).toString();
 
             // Voir si l'utilisateur existe déjà
             const isUserExists = await this._userRepository.isUserExists(
-                userToCreate.email,
-                userToCreate.firstname
+                userData.email,
+                userData.firstname
             );
             if (isUserExists) {
-                logger.warn('User already exists', userToCreate.firstname, userToCreate.lastname);
+                logger.warn('User already exists', userData.firstname, userData.lastname);
                 return !this.IS_NEW_USER;
             }
 
             // Crée l'utilisateur
-            const isUserCreated = await this._userRepository.createUser(userToCreate);
+            const isUserCreated = await this._userRepository.createUser(
+                userData.lastname,
+                userData.firstname,
+                userData.email,
+                userData.password,
+                userData.sexe,
+                userData.birthdate,
+                userData.role,
+                userData.avatar
+            );
             if (!isUserCreated) {
-                logger.warn('Error creating user', userToCreate.firstname, userToCreate.lastname);
+                logger.warn('Error creating user', userData.firstname, userData.lastname);
+                 console.error('Erreur lors de la création user:');
                 return !this.WORK_DONE;
             }
 
             // Récupère l'utilisateur créé pour avoir son id
-            const createdUser = await User.findOne({ where: { email: userToCreate.email } });
-            if (!createdUser) {
-                logger.warn('User not found after creation', userToCreate.email);
-                return !this.WORK_DONE;
-            }
+            // const createdUser = await User.findOne({ where: { email: userData.email } });
+            // if (!createdUser) {
+            //     logger.warn('User not found after creation', userData.email);
+            //     return !this.WORK_DONE;
+            // }
 
             // Liaison SkillsCategory (table user_skill_categories)
-            if (Array.isArray(userData.SkillsCategory) && userData.SkillsCategory.length > 0) {
-                for (const skillCategoryId of userData.SkillsCategory) {
-                    await sequelize.models.UserSkillCategory.create({
-                        userId: createdUser.id,
-                        skillCategoryId: skillCategoryId
-                    });
-                }
-            }
+            // if (Array.isArray(userData.SkillsCategory) && userData.SkillsCategory.length > 0) {
+            //     for (const skillCategoryId of userData.SkillsCategory) {
+            //         await sequelize.models.UserSkillCategory.create({
+            //             userId: createdUser.id,
+            //             skillCategoryId: skillCategoryId
+            //         });
+            //     }
+            // }
 
             // // Liaison Skill 
             // if (Array.isArray(userData.Skill) && userData.Skill.length > 0) {
@@ -178,7 +180,7 @@ class UserService extends BaseService {
             //     }
             // }
 
-            console.log('userToCreate:', userToCreate);
+            console.log('userData:', userData);
 
             return this.WORK_DONE;
         } catch (error) {

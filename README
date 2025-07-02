@@ -1,6 +1,8 @@
 # Lancer l'execution du projet en mode dev car la prod n'est pas faite comme il faut
 
-# IMPORTANT les allias fonctionne si l'utilisation Makefile est installer 
+# IMPORTANT les allias fonctionne si le nécessaire pour Makefile est installer :
+Pour l'istaller sur mac : `brew install make`
+Pour linux: `sudo apt-get install make``
 
 # 1. Etape (il est possible d'utiliser les alias)
 
@@ -26,15 +28,19 @@ Pour initialiser les données fictives du scripts/seed.ts
 
 - **docker exec -it nova-back-dev sh**
 
-et ensuite on taper dedans :
+et ensuite on tape dedans :
 
 - **npm run seed**
 
+aussi on peut lancer les taches de cron manuellement
+
+- **npm run cron:all** - on lance tout
+
 pour sortir du it on tape **exit**
 
-l'alias ne fonctionne pas \*\*TODO - à corriger
+une fois tout fait on peut faire les test avec http.test 
 
-- **make seed**
+l'alias **make seed** ne fonctionne pas \*\*TODO 
 
 # 3. Etape
 

@@ -11,7 +11,7 @@ const MainRouter = Router();
 const _middlewareService = new MiddlewareService();
 const _userController = new UserController();
 
-MainRouter.use('/users/helpers', _userController.getAllHelpers.bind(_userController));
+// MainRouter.use('/users/helpers', _userController.getAllHelpers.bind(_userController));
 
 MainRouter.use('/auth', authRouter);
 

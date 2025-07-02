@@ -163,6 +163,9 @@ async function seed() {
         updatedAt: new Date()
     });
 
+
+
+
     console.log('Seed terminé !');
     process.exit(0);
 }

@@ -48,7 +48,7 @@ class AuthService {
         try {
             return await argon2.verify(hashedPassword, plainPassword);
         } catch (error) {
-            console.error('Error verifying password:', error);
+            logger.error('Error verifying password:', error);
             return false;
         }
     }
@@ -125,7 +125,7 @@ class AuthService {
                 return false; // Token non trouvé ou inactif
             }
 
-            if ((token.expiresAt && token.expiresAt < now) || !token.isActive) {
+            if ((token.expiresAt < now) || !token.isActive) {
                 return false; // Token expiré
             }
 
@@ -143,8 +143,7 @@ class AuthService {
         }
 
         try {
-            const parts = this.splitToken(fullTokenString);
-            const tokenString = parts[1];
+             const tokenString = this.splitToken(fullTokenString);
 
             let decodedPayload: IJwtPayloadExtended;
             try {
@@ -174,7 +173,7 @@ class AuthService {
             return decodedPayload;
         } catch (error: any) {
             // any pour attraper toutes les erreurs potentielles
-            console.error('Error analysing token:', error.message); // Log seulement le message pour éviter trop de verbosité
+            logger.error('Error analysing token:', getErrorMessage(error)); // Log seulement le message pour éviter trop de verbosité
             return null;
         }
     }
