@@ -26,7 +26,8 @@ class AutController {
                 res.status(400).json({ message: 'Error creating user' });
                 return;
             }
-            res.status(201).json(newUser);
+            const { password, ...userWithoutPassword } = newUser;
+            res.status(201).json(userWithoutPassword);
             return;
         } catch (error) {
             logger.error('Error in createUser controller: %s', getErrorMessage(error));

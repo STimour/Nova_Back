@@ -127,8 +127,7 @@ class AuthService {
                 return null;
             }
             try {
-                const parts = this.splitToken(fullTokenString);
-                const tokenString = parts[1];
+                const tokenString = this.splitToken(fullTokenString);
                 let decodedPayload;
                 try {
                     decodedPayload = jsonwebtoken_1.default.verify(tokenString, this.JWT_SECRET);
@@ -152,7 +151,7 @@ class AuthService {
             }
             catch (error) {
                 // any pour attraper toutes les erreurs potentielles
-                console.error('Error analysing token:', error.message); // Log seulement le message pour éviter trop de verbosité
+                logger_1.default.error('Error analysing token:', (0, errorHandler_middlewares_1.getErrorMessage)(error)); // Log seulement le message pour éviter trop de verbosité
                 return null;
             }
         });

@@ -137,19 +137,27 @@ class UserRepository {
             }
         });
     }
-    createUser(user) {
+    createUser(lastname, firstname, email, password, sexe, birthdate, role, avatar) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('User reçu pour création:', user);
-                const newUser = yield User_model_1.User.create();
+                const newUser = yield User_model_1.User.create({
+                    lastname,
+                    firstname,
+                    email,
+                    password,
+                    sexe,
+                    birthdate,
+                    role,
+                    avatar
+                });
                 if (!newUser) {
-                    logger_1.default.warn(error_messages_1.default.errorCreatingUser(), user.firstname, user.lastname);
+                    logger_1.default.warn(error_messages_1.default.errorCreatingUser(), firstname, lastname);
                     return false;
                 }
                 return true;
             }
             catch (error) {
-                logger_1.default.error(error_messages_1.default.errorCreatingUser(), user.firstname, user.lastname, (0, errorHandler_middlewares_1.getErrorMessage)(error));
+                logger_1.default.error(error_messages_1.default.errorCreatingUser(), firstname, lastname, (0, errorHandler_middlewares_1.getErrorMessage)(error));
                 return false;
             }
         });

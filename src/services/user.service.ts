@@ -111,7 +111,7 @@ class UserService extends BaseService {
         }
     }
 
-    public async createUser(userData: IUser): Promise<boolean> {
+    public async createUser(userData: any): Promise<boolean> {
         try {
             if (!this.verifyUserData(userData)) return !this.IS_USER_DATA_VALID;
 
@@ -123,7 +123,6 @@ class UserService extends BaseService {
             for (const key of allowedFields) {
                 if (userData[key as keyof IUser] !== undefined) userToCreate[key] = userData[key as keyof IUser];
             }
-            userToCreate.deleted = false;
             if (!userToCreate.role) userToCreate.role = 'student';
 
             //TODO Corriger côté front 
@@ -145,7 +144,16 @@ class UserService extends BaseService {
             }
 
             // Crée l'utilisateur
-            const isUserCreated = await this._userRepository.createUser(userToCreate);
+            const isUserCreated = await this._userRepository.createUser(
+                userToCreate.lastname,
+                userToCreate.firstname,
+                userToCreate.email,
+                userToCreate.password,
+                userToCreate.sexe,
+                userToCreate.birthdate,
+                userToCreate.role,
+                userToCreate.avatar
+            );
             if (!isUserCreated) {
                 logger.warn('Error creating user', userToCreate.firstname, userToCreate.lastname);
                 return !this.WORK_DONE;

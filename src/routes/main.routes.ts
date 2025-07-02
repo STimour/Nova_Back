@@ -15,9 +15,9 @@ MainRouter.use('/users/helpers', _userController.getAllHelpers.bind(_userControl
 
 MainRouter.use('/auth', authRouter);
 
-MainRouter.use('/users', _middlewareService.checkToken, userRouter);
+MainRouter.use('/users', userRouter);
 
-MainRouter.use('/session/', _middlewareService.checkToken, sessionRoutes);
+MainRouter.use('/session/', sessionRoutes);
 
 MainRouter.use('/categories/', categoriesRoutes);
 

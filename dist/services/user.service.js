@@ -136,7 +136,6 @@ class UserService extends base_service_1.BaseService {
                     if (userData[key] !== undefined)
                         userToCreate[key] = userData[key];
                 }
-                userToCreate.deleted = false;
                 if (!userToCreate.role)
                     userToCreate.role = 'student';
                 //TODO Corriger côté front 
@@ -152,7 +151,7 @@ class UserService extends base_service_1.BaseService {
                     return !this.IS_NEW_USER;
                 }
                 // Crée l'utilisateur
-                const isUserCreated = yield this._userRepository.createUser(userToCreate);
+                const isUserCreated = yield this._userRepository.createUser(userToCreate.lastname, userToCreate.firstname, userToCreate.email, userToCreate.password, userToCreate.sexe, userToCreate.birthdate, userToCreate.role, userToCreate.avatar);
                 if (!isUserCreated) {
                     logger_1.default.warn('Error creating user', userToCreate.firstname, userToCreate.lastname);
                     return !this.WORK_DONE;

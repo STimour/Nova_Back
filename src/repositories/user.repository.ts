@@ -143,16 +143,24 @@ class UserRepository implements IUserRepository {
         }
     }
 
-    public async createUser(user: User): Promise<boolean> {
+    public async createUser(lastname: string, firstname: string, email: string, password: string, sexe: string, birthdate: Date, role: string, avatar: string): Promise<boolean> {
         try {
-            console.log('User reçu pour création:', user);
-            const newUser = await User.create();
+            const newUser = await User.create({
+                lastname,
+                firstname,
+                email,
+                password,
+                sexe,
+                birthdate,
+                role,
+                avatar
+            });
 
             if (!newUser) {
                 logger.warn(
                     ErrorMessages.errorCreatingUser(),
-                    user.firstname,
-                    user.lastname
+                    firstname,
+                    lastname
                 );
                 return false;
             }
@@ -161,8 +169,8 @@ class UserRepository implements IUserRepository {
         } catch (error) {
             logger.error(
                 ErrorMessages.errorCreatingUser(),
-                user.firstname,
-                user.lastname,
+                firstname,
+                lastname,
                 getErrorMessage(error)
             );
             return false;

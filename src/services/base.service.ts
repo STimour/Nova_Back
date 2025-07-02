@@ -7,7 +7,7 @@ export class BaseService {
         this.WORK_DONE = true;
     }
 
-    public verifyUserData(userData: IUser): boolean {
+    public verifyUserData(userData: any): boolean {
         let isUserDataValid: boolean = true;
 
         if (

@@ -14,11 +14,11 @@ export class MiddlewareService {
         this._authService = _authService;
     }
 
-    public async checkToken(
+    public checkToken = async (
         req: AuthenticatedRequest,
         res: Response,
         next: NextFunction
-    ): Promise<void> {
+    ): Promise<void> => {
         const fullToken: string | undefined = req.headers.authorization;
 
         if (!fullToken || typeof fullToken !== 'string') {
@@ -40,10 +40,7 @@ export class MiddlewareService {
             const whereClause: Record<string, any> = {
                 id: decodedPayload.userId,
                 email: decodedPayload.userEmail,
-                deleted: false,
-                ...(decodedPayload.userBirthdate && {
-                    birthdate: decodedPayload.userBirthdate
-                })
+                deleted: false
             };
 
             const userRecord = await User.findOne({ where: whereClause });
@@ -65,5 +62,5 @@ export class MiddlewareService {
                 error: ErrorMessages.internal()
             });
         }
-    }
+    };
 }

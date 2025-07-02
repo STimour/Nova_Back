@@ -1,0 +1,163 @@
+#### Test Back sans Front
+
+@token = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsInVzZXJFbWFpbCI6ImpvaG4uZG9lQGV4YW1wbGUuY29tIiwidXNlckJpcnRoZGF0ZSI6IjE5OTAtMDEtMDFUMDA6MDA6MDAuMDAwWiIsImlhdCI6MTc1MTQ1NjM1NywiZXhwIjoxNzgyOTkyMzU3fQ.Qs21_0G7ES2p_SVoRO4tp2YVQSmmgHoex7oaGJ8OBZg
+
+###
+# Auth - Inscription - student
+POST http://localhost:3030/api/auth/inscription
+Content-Type: application/json
+
+{
+  "firstname": "John",
+  "lastname": "Doe",
+  "email": "john.doe@example.com",
+  "password": "Password123!",
+  "sexe": "M",
+  "birthdate": "1990-01-01",
+  "role": "student",
+  "avatar": "/images/avatars/guy-2.svg"
+}
+
+###
+# Auth - Inscription - helper
+POST http://localhost:3030/api/auth/inscription
+Content-Type: application/json
+
+{
+  "firstname": "Johna",
+  "lastname": "Doe",
+  "email": "johna.doe@example.com",
+  "password": "Password123!",
+  "sexe": "F",
+  "birthdate": "1990-01-01",
+  "role": "helper",
+  "avatar": "/images/avatars/guy-2.svg"
+}
+
+###
+# Auth - Login - John
+POST http://localhost:3030/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.com",
+  "password": "Password123!",
+  "saveConnexion": true
+}
+
+###
+# Auth - Login - Johna
+POST http://localhost:3030/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "johna.doe@example.com",
+  "password": "Password123!",
+  "saveConnexion": true
+}
+
+###
+# Auth - Logout
+POST http://localhost:3030/api/auth/logout
+Content-Type: application/json
+Authorization: {{token}}
+
+###
+# Users - Get all helpers (public)
+GET http://localhost:3030/api/users/helpers
+Content-Type: application/json
+
+###
+# Users - Get helper by ID (token requis)
+GET http://localhost:3030/api/users/helpers/1
+Content-Type: application/json
+Authorization: {{token}}
+
+###
+# Users - Get all students (token requis)
+GET http://localhost:3030/api/users/students
+Content-Type: application/json
+Authorization: {{token}}
+
+###
+# Users - Get student by ID (token requis)
+GET http://localhost:3030/api/users/students/1
+Content-Type: application/json
+Authorization: {{token}}
+
+###
+# Categories - Get all
+GET http://localhost:3030/api/categories/all
+Content-Type: application/json
+
+###
+# Categories - Create 
+POST http://localhost:3030/api/categories/
+Content-Type: application/json
+Authorization: {{token}}
+
+{
+  "name": "Nouvelle catégorie",
+  "description": "Description test"
+}
+
+###
+# Skills - Get all
+GET http://localhost:3030/api/skills/all
+Content-Type: application/json
+
+###
+# Skills - Create 
+POST http://localhost:3030/api/skills/
+Content-Type: application/json
+Authorization: {{token}}
+
+{
+  "name": "Nouveau skill"
+}
+
+###
+# Sessions - Get all (token requis)
+POST http://localhost:3030/api/session/all
+Content-Type: application/json
+Authorization: {{token}}
+
+###
+# Sessions - Get by ID (token requis)
+GET http://localhost:3030/api/session/1
+Content-Type: application/json
+Authorization: {{token}}
+
+###
+# Sessions - Create (token requis)
+POST http://localhost:3030/api/session/create
+Content-Type: application/json
+Authorization: {{token}}
+
+{
+  "name": "Session test",
+  "meetUrl": "https://meet.example.com/test",
+  "idHelper": 1,
+  "idStudent": 2,
+  "day": "2025-07-02",
+  "startTime": "09:00",
+  "endTime": "10:00",
+  "status": "confirmed",
+  "requestedBy": 2
+}
+
+###
+# Sessions - Update (token requis)
+PATCH http://localhost:3030/api/session/1
+Content-Type: application/json
+Authorization: {{token}}
+
+{
+  "status": "refused"
+}
+
+###
+# Sessions - Delete (token requis)
+POST http://localhost:3030/api/session/1
+Content-Type: application/json
+Authorization: {{token}}
