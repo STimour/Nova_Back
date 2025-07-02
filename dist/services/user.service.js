@@ -14,11 +14,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const user_repository_1 = __importDefault(require("./../repositories/user.repository"));
 const auth_service_1 = __importDefault(require("./../services/auth.service"));
+const User_model_1 = require("../models/User.model");
 const base_service_1 = require("./base.service");
 const errorHandler_middlewares_1 = require("../middlwares/errorHandler.middlewares");
 const logger_1 = __importDefault(require("../utils/logger"));
 const error_messages_1 = __importDefault(require("../utils/error.messages"));
 const reputationHistory_service_1 = require("./reputationHistory.service");
+const db_1 = __importDefault(require("../configDB/db"));
 //TODO -  || utiliser la class ErrorMessages
 //TODO - revoir la gestion des types de renvoi pour tous le flux des methodes
 class UserService extends base_service_1.BaseService {
@@ -123,20 +125,56 @@ class UserService extends base_service_1.BaseService {
     createUser(userData) {
         return __awaiter(this, void 0, void 0, function* () {
             // Dans la version finale il faudrait changer le type de retour pour gérér au mieux les cas avec des utilisateur existant
+            let createdUser;
             try {
                 if (!this.verifyUserData(userData))
                     return !this.IS_USER_DATA_VALID;
-                const password = this._authService.hashPassword(userData.password);
-                userData.password = (yield password).toString();
-                const isUserExists = yield this._userRepository.isUserExists(userData.email, userData.firstname);
+                // Séparation des champs attendus pour User
+                const allowedFields = [
+                    'lastname',
+                    'firstname',
+                    'email',
+                    'password',
+                    'sexe',
+                    'birthdate',
+                    'role',
+                    'avatar'
+                ];
+                const userToCreate = {};
+                for (const key of allowedFields) {
+                    if (userData[key] !== undefined)
+                        userToCreate[key] = userData[key];
+                }
+                // Valeurs par défaut
+                userToCreate.deleted = false;
+                if (!userToCreate.role)
+                    userToCreate.role = 'student';
+                // Hash du mot de passe
+                const password = yield this._authService.hashPassword(userToCreate.password);
+                userToCreate.password = password.toString();
+                // Vérification existence user
+                const isUserExists = yield this._userRepository.isUserExists(userToCreate.email, userToCreate.firstname);
                 if (isUserExists) {
-                    logger_1.default.warn('User already exists', userData.firstname, userData.lastname);
+                    logger_1.default.warn('User already exists', userToCreate.firstname, userToCreate.lastname);
                     return !this.IS_NEW_USER;
                 }
-                const isUserCreated = yield this._userRepository.createUser(userData);
+                // Création du user
+                const isUserCreated = yield this._userRepository.createUser(userToCreate);
                 if (!isUserCreated) {
-                    logger_1.default.warn('Error creating user', userData.firstname, userData.lastname);
+                    logger_1.default.warn('Error creating user', userToCreate.firstname, userToCreate.lastname);
                     return !this.WORK_DONE;
+                }
+                //TODO - Liaison Skills et SkillsCategory (faire un truc estethique) et surtout gerer le cas où la liaison n'as pas fonctionnait
+                if (this.WORK_DONE) {
+                    createdUser = yield User_model_1.User.findOne({ where: { email: userToCreate.email } });
+                    if (Array.isArray(userData.SkillsCategory) && userData.SkillsCategory.length > 0) {
+                        for (const skillCategoryId of userData.SkillsCategory) {
+                            yield db_1.default.models.UserSkillCategory.create({
+                                userId: createdUser === null || createdUser === void 0 ? void 0 : createdUser.id,
+                                skillCategoryId: skillCategoryId
+                            });
+                        }
+                    }
                 }
                 return this.WORK_DONE;
             }
