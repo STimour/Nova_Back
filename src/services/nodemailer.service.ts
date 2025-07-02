@@ -1,5 +1,7 @@
 import nodemailer from 'nodemailer';
 import logger from '../utils/logger';
+import ErrorMessages from '../utils/error.messages';
+import { getErrorMessage } from '../middlwares/errorHandler.middlewares';
 
 export const mailer = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
@@ -27,6 +29,7 @@ export async function notifyUserByEmail(
     try {
         await sendMail(toEmail, subject, text);
     } catch (error) {
-        logger.error("Erreur lors de l'envoi du mail de notification", toEmail, error);
+        // TODO - Revoir la gestion des erreurs
+        logger.error(ErrorMessages.badRequest(), toEmail, getErrorMessage(error));
     }
 }

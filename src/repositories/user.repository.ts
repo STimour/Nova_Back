@@ -34,7 +34,7 @@ class UserRepository implements IUserRepository {
             }
             return users;
         } catch (error) {
-            logger.error('Error in UserRepository.findAllUsers: %s', getErrorMessage(error));
+            logger.error(ErrorMessages.errorFetchingUsers(), getErrorMessage(error));
             return undefined;
         }
     }
@@ -52,13 +52,13 @@ class UserRepository implements IUserRepository {
             });
 
             if (user === null) {
-                logger.error("User for id %d: %s wasn't found", id);
+                logger.error(ErrorMessages.errorFetchingUser(), id);
                 return null;
             }
 
             return user;
         } catch (error) {
-            logger.error('Error in UserRepository.findUser: %s', getErrorMessage(error));
+            logger.error(ErrorMessages.errorFetchingUser(), getErrorMessage(error));
             return null;
         }
     }
@@ -70,7 +70,7 @@ class UserRepository implements IUserRepository {
                 attributes: { exclude: ['password'] }
             });
         } catch (error) {
-            logger.error('Error in UserRepository.findAllStudents: %s', getErrorMessage(error));
+            logger.error(ErrorMessages.errorFetchingStudents(), getErrorMessage(error));
             return undefined;
         }
     }
@@ -134,7 +134,7 @@ class UserRepository implements IUserRepository {
             return !this.USER_FOUND;
         } catch (error) {
             logger.error(
-                'Error in UserRepository.verifyUserBeforeInscription for %s %s: %s',
+                ErrorMessages.errorFetchingUser(),
                 firstname,
                 email,
                 getErrorMessage(error)
@@ -149,7 +149,7 @@ class UserRepository implements IUserRepository {
 
             if (!newUser) {
                 logger.warn(
-                    'UserRepository.createUser: Failed to create user %s %s',
+                    ErrorMessages.errorCreatingUser(),
                     user.firstname,
                     user.lastname
                 );
@@ -159,7 +159,7 @@ class UserRepository implements IUserRepository {
             return true;
         } catch (error) {
             logger.error(
-                'Error in UserRepository.createUser for %s %s: %s',
+                ErrorMessages.errorCreatingUser(),
                 user.firstname,
                 user.lastname,
                 getErrorMessage(error)
@@ -193,7 +193,7 @@ class UserRepository implements IUserRepository {
         });
 
         if (helper === null) {
-            logger.error("Helper for id %d: %s wasn't found", id);
+            logger.error(ErrorMessages.errorFetchingUser(), id);
             return undefined;
         }
         let allHelpers = this.helpersCache.get<any[]>('allHelpers') || [];
@@ -213,16 +213,12 @@ class UserRepository implements IUserRepository {
         try {
             const student = await User.findOne({ where: { id: id, role: 'student' } });
             if (student === null) {
-                logger.error("Student for id %d: %s wasn't found", id);
+                logger.error(ErrorMessages.errorFetchingUser(), id);
                 return undefined;
             }
             return student;
         } catch (error) {
-            logger.error(
-                'Error in UserRepository.findById for id %d: %s',
-                id,
-                getErrorMessage(error)
-            );
+            logger.error(ErrorMessages.errorFetchingUser(), id, getErrorMessage(error));
             return undefined;
         }
     }

@@ -38,7 +38,7 @@ class UserRepository {
                 return users;
             }
             catch (error) {
-                logger_1.default.error('Error in UserRepository.findAllUsers: %s', (0, errorHandler_middlewares_1.getErrorMessage)(error));
+                logger_1.default.error(error_messages_1.default.errorFetchingUsers(), (0, errorHandler_middlewares_1.getErrorMessage)(error));
                 return undefined;
             }
         });
@@ -55,13 +55,13 @@ class UserRepository {
                     attributes: { exclude: ['password'] }
                 });
                 if (user === null) {
-                    logger_1.default.error("User for id %d: %s wasn't found", id);
+                    logger_1.default.error(error_messages_1.default.errorFetchingUser(), id);
                     return null;
                 }
                 return user;
             }
             catch (error) {
-                logger_1.default.error('Error in UserRepository.findUser: %s', (0, errorHandler_middlewares_1.getErrorMessage)(error));
+                logger_1.default.error(error_messages_1.default.errorFetchingUser(), (0, errorHandler_middlewares_1.getErrorMessage)(error));
                 return null;
             }
         });
@@ -75,7 +75,7 @@ class UserRepository {
                 });
             }
             catch (error) {
-                logger_1.default.error('Error in UserRepository.findAllStudents: %s', (0, errorHandler_middlewares_1.getErrorMessage)(error));
+                logger_1.default.error(error_messages_1.default.errorFetchingStudents(), (0, errorHandler_middlewares_1.getErrorMessage)(error));
                 return undefined;
             }
         });
@@ -132,7 +132,7 @@ class UserRepository {
                 return !this.USER_FOUND;
             }
             catch (error) {
-                logger_1.default.error('Error in UserRepository.verifyUserBeforeInscription for %s %s: %s', firstname, email, (0, errorHandler_middlewares_1.getErrorMessage)(error));
+                logger_1.default.error(error_messages_1.default.errorFetchingUser(), firstname, email, (0, errorHandler_middlewares_1.getErrorMessage)(error));
                 return this.USER_FOUND;
             }
         });
@@ -142,13 +142,13 @@ class UserRepository {
             try {
                 const newUser = yield User_model_1.User.create(user);
                 if (!newUser) {
-                    logger_1.default.warn('UserRepository.createUser: Failed to create user %s %s', user.firstname, user.lastname);
+                    logger_1.default.warn(error_messages_1.default.errorCreatingUser(), user.firstname, user.lastname);
                     return false;
                 }
                 return true;
             }
             catch (error) {
-                logger_1.default.error('Error in UserRepository.createUser for %s %s: %s', user.firstname, user.lastname, (0, errorHandler_middlewares_1.getErrorMessage)(error));
+                logger_1.default.error(error_messages_1.default.errorCreatingUser(), user.firstname, user.lastname, (0, errorHandler_middlewares_1.getErrorMessage)(error));
                 return false;
             }
         });
@@ -177,7 +177,7 @@ class UserRepository {
                 attributes: { exclude: ['password'] }
             });
             if (helper === null) {
-                logger_1.default.error("Helper for id %d: %s wasn't found", id);
+                logger_1.default.error(error_messages_1.default.errorFetchingUser(), id);
                 return undefined;
             }
             let allHelpers = this.helpersCache.get('allHelpers') || [];
@@ -196,13 +196,13 @@ class UserRepository {
             try {
                 const student = yield User_model_1.User.findOne({ where: { id: id, role: 'student' } });
                 if (student === null) {
-                    logger_1.default.error("Student for id %d: %s wasn't found", id);
+                    logger_1.default.error(error_messages_1.default.errorFetchingUser(), id);
                     return undefined;
                 }
                 return student;
             }
             catch (error) {
-                logger_1.default.error('Error in UserRepository.findById for id %d: %s', id, (0, errorHandler_middlewares_1.getErrorMessage)(error));
+                logger_1.default.error(error_messages_1.default.errorFetchingUser(), id, (0, errorHandler_middlewares_1.getErrorMessage)(error));
                 return undefined;
             }
         });

@@ -35,7 +35,7 @@ class UserService extends BaseService {
             if (users === undefined) return undefined;
             return users;
         } catch (error) {
-            logger.error('Error in UserService.findAllUsers: %s', getErrorMessage(error));
+            logger.error(ErrorMessages.errorFetchingUsers(), getErrorMessage(error));
             throw error;
         }
     }
@@ -46,7 +46,7 @@ class UserService extends BaseService {
             if (user === null) return null;
             return user;
         } catch (error) {
-            logger.error('Error in UserService.findUser: %s', getErrorMessage(error));
+            logger.error(ErrorMessages.errorFetchingUser(), getErrorMessage(error));
             throw error;
         }
     }
@@ -63,7 +63,7 @@ class UserService extends BaseService {
 
             return helpers;
         } catch (error) {
-            logger.error('Error in UserService.getAllHelpers: %s', getErrorMessage(error));
+            logger.error(ErrorMessages.errorFetchingHelpers(), getErrorMessage(error));
             throw error;
         }
     }
@@ -82,7 +82,7 @@ class UserService extends BaseService {
                 noteSemaine: Number(noteSemaine.toFixed(2))
             };
         } catch (error) {
-            logger.error('Error in UserService.findHelper: %s', getErrorMessage(error));
+            logger.error(ErrorMessages.errorFetchingUser(), getErrorMessage(error));
             throw error;
         }
     }
@@ -96,7 +96,7 @@ class UserService extends BaseService {
             }
             return students;
         } catch (error) {
-            logger.error('Error in UserService.findAllStudents: %s', getErrorMessage(error));
+            logger.error(ErrorMessages.errorFetchingStudents(), getErrorMessage(error));
             throw error;
         }
     }
@@ -106,7 +106,7 @@ class UserService extends BaseService {
             const student: User | undefined = await this._userRepository.findStudent(id);
             return student;
         } catch (error) {
-            logger.error('Error in UserService.findStudent: %s', getErrorMessage(error));
+            logger.error(ErrorMessages.errorFetchingUser(), getErrorMessage(error));
             throw error;
         }
     }
@@ -174,11 +174,10 @@ class UserService extends BaseService {
         }
         return this.WORK_DONE;
         } catch (error) {
-            // a supprimer pour la prod
-            console.error('Error creating user:', getErrorMessage(error));
+            // TODO - revoir la gestion des erreurs
 
             logger.error(
-                'Error creating user:',
+                ErrorMessages.errorCreatingUser(),
                 userData.firstname,
                 userData.lastname,
                 getErrorMessage(error)
@@ -191,7 +190,7 @@ class UserService extends BaseService {
         const user = await this._userRepository.findUser(parseInt(userToDelete.id), false);
 
         if (user === null) {
-            logger.error(ErrorMessages.notFound(), userToDelete.id);
+            logger.error(ErrorMessages.errorDeletingUser(), userToDelete.id);
             return false;
         }
         if (!userToDelete.toDelete) {
