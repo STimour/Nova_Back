@@ -16,7 +16,7 @@ export class HelperBadgeService {
         for (const helper of helpers) {
             const heuresDisponibles = await Session.count({
                 where: {
-                    idUser: helper.id,
+                    idHelper: helper.id,
                     day: {
                         $between: [startOfWeek, endOfWeek]
                     }

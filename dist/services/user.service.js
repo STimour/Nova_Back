@@ -14,13 +14,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const user_repository_1 = __importDefault(require("./../repositories/user.repository"));
 const auth_service_1 = __importDefault(require("./../services/auth.service"));
-const User_model_1 = require("../models/User.model");
 const base_service_1 = require("./base.service");
 const errorHandler_middlewares_1 = require("../middlwares/errorHandler.middlewares");
 const logger_1 = __importDefault(require("../utils/logger"));
 const error_messages_1 = __importDefault(require("../utils/error.messages"));
 const reputationHistory_service_1 = require("./reputationHistory.service");
-const db_1 = __importDefault(require("../configDB/db"));
 //TODO -  || utiliser la class ErrorMessages
 //TODO - revoir la gestion des types de renvoi pour tous le flux des methodes
 class UserService extends base_service_1.BaseService {
@@ -87,7 +85,10 @@ class UserService extends base_service_1.BaseService {
                     return undefined;
                 const reputationHistoryService = new reputationHistory_service_1.ReputationHistoryService();
                 const noteSemaine = yield reputationHistoryService.getLastWeeklyNote(helper.id);
-                return Object.assign(Object.assign({}, helper.toJSON()), { noteSemaine: Number(noteSemaine.toFixed(2)) });
+                return {
+                    helper,
+                    noteSemaine: Number(noteSemaine.toFixed(2))
+                };
             }
             catch (error) {
                 logger_1.default.error(error_messages_1.default.errorFetchingUser(), (0, errorHandler_middlewares_1.getErrorMessage)(error));
@@ -125,52 +126,45 @@ class UserService extends base_service_1.BaseService {
     createUser(userData) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                console.log(userData);
                 if (!this.verifyUserData(userData))
                     return !this.IS_USER_DATA_VALID;
-                // Sélectionne uniquement les champs du modèle User
-                const allowedFields = [
-                    'lastname', 'firstname', 'email', 'password', 'sexe', 'birthdate', 'role', 'avatar'
-                ];
-                const userToCreate = {};
-                for (const key of allowedFields) {
-                    if (userData[key] !== undefined)
-                        userToCreate[key] = userData[key];
-                }
-                if (!userToCreate.role)
-                    userToCreate.role = 'student';
+                if (!userData.role)
+                    userData.role = 'student';
                 //TODO Corriger côté front 
-                if (userToCreate.birthdate && typeof userToCreate.birthdate === 'string') {
-                    userToCreate.birthdate = new Date(userToCreate.birthdate);
+                if (userData.birthdate && typeof userData.birthdate === 'string') {
+                    userData.birthdate = new Date(userData.birthdate);
                 }
                 // Hash du mot de passe
-                userToCreate.password = (yield this._authService.hashPassword(userToCreate.password)).toString();
+                userData.password = (yield this._authService.hashPassword(userData.password)).toString();
                 // Voir si l'utilisateur existe déjà
-                const isUserExists = yield this._userRepository.isUserExists(userToCreate.email, userToCreate.firstname);
+                const isUserExists = yield this._userRepository.isUserExists(userData.email, userData.firstname);
                 if (isUserExists) {
-                    logger_1.default.warn('User already exists', userToCreate.firstname, userToCreate.lastname);
+                    logger_1.default.warn('User already exists', userData.firstname, userData.lastname);
                     return !this.IS_NEW_USER;
                 }
                 // Crée l'utilisateur
-                const isUserCreated = yield this._userRepository.createUser(userToCreate.lastname, userToCreate.firstname, userToCreate.email, userToCreate.password, userToCreate.sexe, userToCreate.birthdate, userToCreate.role, userToCreate.avatar);
+                const isUserCreated = yield this._userRepository.createUser(userData.lastname, userData.firstname, userData.email, userData.password, userData.sexe, userData.birthdate, userData.role, userData.avatar);
                 if (!isUserCreated) {
-                    logger_1.default.warn('Error creating user', userToCreate.firstname, userToCreate.lastname);
+                    logger_1.default.warn('Error creating user', userData.firstname, userData.lastname);
+                    console.error('Erreur lors de la création user:');
                     return !this.WORK_DONE;
                 }
                 // Récupère l'utilisateur créé pour avoir son id
-                const createdUser = yield User_model_1.User.findOne({ where: { email: userToCreate.email } });
-                if (!createdUser) {
-                    logger_1.default.warn('User not found after creation', userToCreate.email);
-                    return !this.WORK_DONE;
-                }
+                // const createdUser = await User.findOne({ where: { email: userData.email } });
+                // if (!createdUser) {
+                //     logger.warn('User not found after creation', userData.email);
+                //     return !this.WORK_DONE;
+                // }
                 // Liaison SkillsCategory (table user_skill_categories)
-                if (Array.isArray(userData.SkillsCategory) && userData.SkillsCategory.length > 0) {
-                    for (const skillCategoryId of userData.SkillsCategory) {
-                        yield db_1.default.models.UserSkillCategory.create({
-                            userId: createdUser.id,
-                            skillCategoryId: skillCategoryId
-                        });
-                    }
-                }
+                // if (Array.isArray(userData.SkillsCategory) && userData.SkillsCategory.length > 0) {
+                //     for (const skillCategoryId of userData.SkillsCategory) {
+                //         await sequelize.models.UserSkillCategory.create({
+                //             userId: createdUser.id,
+                //             skillCategoryId: skillCategoryId
+                //         });
+                //     }
+                // }
                 // // Liaison Skill 
                 // if (Array.isArray(userData.Skill) && userData.Skill.length > 0) {
                 //     for (const skillId of userData.Skill) {
@@ -180,7 +174,7 @@ class UserService extends base_service_1.BaseService {
                 //         });
                 //     }
                 // }
-                console.log('userToCreate:', userToCreate);
+                console.log('userData:', userData);
                 return this.WORK_DONE;
             }
             catch (error) {

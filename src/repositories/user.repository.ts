@@ -8,6 +8,7 @@ import ErrorMessages from '../utils/error.messages';
 import NodeCache from 'node-cache';
 import { ReputationHistoryService } from '../services/reputationHistory.service';
 import { HelperWithNote } from '../typeExtends/user.extends';
+import { error } from 'console';
 
 //TODO - revoir comment on fait le cache - trouver comment créer un service à part
 
@@ -156,17 +157,20 @@ class UserRepository implements IUserRepository {
                 avatar
             });
 
+
+
             if (!newUser) {
                 logger.warn(
                     ErrorMessages.errorCreatingUser(),
                     firstname,
                     lastname
                 );
-                return false;
+                throw error;
             }
 
             return true;
         } catch (error) {
+              console.log('Erreur lors de la création user:', error);
             logger.error(
                 ErrorMessages.errorCreatingUser(),
                 firstname,
@@ -220,7 +224,7 @@ class UserRepository implements IUserRepository {
 
     public async findStudent(id: number): Promise<User | undefined> {
         try {
-            const student = await User.findOne({ where: { id: id, role: 'student' } });
+            const student = await User.findOne({ where: { id: id } });
             if (student === null) {
                 logger.error(ErrorMessages.errorFetchingUser(), id);
                 return undefined;

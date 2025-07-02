@@ -19,6 +19,7 @@ const errorHandler_middlewares_1 = require("../middlwares/errorHandler.middlewar
 const error_messages_1 = __importDefault(require("../utils/error.messages"));
 const node_cache_1 = __importDefault(require("node-cache"));
 const reputationHistory_service_1 = require("../services/reputationHistory.service");
+const console_1 = require("console");
 //TODO - revoir comment on fait le cache - trouver comment créer un service à part
 class UserRepository {
     constructor(_reputationHistoryService = new reputationHistory_service_1.ReputationHistoryService()) {
@@ -152,11 +153,12 @@ class UserRepository {
                 });
                 if (!newUser) {
                     logger_1.default.warn(error_messages_1.default.errorCreatingUser(), firstname, lastname);
-                    return false;
+                    throw console_1.error;
                 }
                 return true;
             }
             catch (error) {
+                console.log('Erreur lors de la création user:', error);
                 logger_1.default.error(error_messages_1.default.errorCreatingUser(), firstname, lastname, (0, errorHandler_middlewares_1.getErrorMessage)(error));
                 return false;
             }
@@ -203,7 +205,7 @@ class UserRepository {
     findStudent(id) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const student = yield User_model_1.User.findOne({ where: { id: id, role: 'student' } });
+                const student = yield User_model_1.User.findOne({ where: { id: id } });
                 if (student === null) {
                     logger_1.default.error(error_messages_1.default.errorFetchingUser(), id);
                     return undefined;

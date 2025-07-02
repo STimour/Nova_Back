@@ -39,7 +39,7 @@ class App {
         try {
             await sequelize.authenticate();
             console.log('Database connection has been established successfully.'); // Utiliser { alter: true } ou { force: true } uniquement en développement
-            await sequelize.sync({ alter: true }); // En développement, pour aider à synchroniser le schéma. Pour la production, utilisez des migrations.
+            await sequelize.sync({ force: true }); // En développement, pour aider à synchroniser le schéma. Pour la production, utilisez des migrations.
             console.log('Database synced');
         } catch (error) {
             console.error('Unable to connect to the database or sync:', error);

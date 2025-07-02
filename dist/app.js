@@ -43,7 +43,7 @@ class App {
             try {
                 yield db_1.default.authenticate();
                 console.log('Database connection has been established successfully.'); // Utiliser { alter: true } ou { force: true } uniquement en développement
-                yield db_1.default.sync({ alter: true }); // En développement, pour aider à synchroniser le schéma. Pour la production, utilisez des migrations.
+                yield db_1.default.sync({ force: true }); // En développement, pour aider à synchroniser le schéma. Pour la production, utilisez des migrations.
                 console.log('Database synced');
             }
             catch (error) {

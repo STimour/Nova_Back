@@ -28,9 +28,13 @@ Pour initialiser les données fictives du scripts/seed.ts
 
 - **docker exec -it nova-back-dev sh**
 
-et ensuite on taper dedans :
+et ensuite on tape dedans :
 
 - **npm run seed**
+
+aussi on peut lancer les taches de cron manuellement
+
+- **npm run cron:all** - on lance tout
 
 pour sortir du it on tape **exit**
 

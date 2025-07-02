@@ -54,7 +54,7 @@ class AuthService {
                 return yield argon2_1.default.verify(hashedPassword, plainPassword);
             }
             catch (error) {
-                console.error('Error verifying password:', error);
+                logger_1.default.error('Error verifying password:', error);
                 return false;
             }
         });
@@ -109,7 +109,7 @@ class AuthService {
                 if (token === undefined) {
                     return false; // Token non trouvé ou inactif
                 }
-                if ((token.expiresAt && token.expiresAt < now) || !token.isActive) {
+                if ((token.expiresAt < now) || !token.isActive) {
                     return false; // Token expiré
                 }
                 return true; // Token valide

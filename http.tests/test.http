@@ -1,6 +1,18 @@
 #### Test Back sans Front
 
-@token = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsInVzZXJFbWFpbCI6ImpvaG4uZG9lQGV4YW1wbGUuY29tIiwidXNlckJpcnRoZGF0ZSI6IjE5OTAtMDEtMDFUMDA6MDA6MDAuMDAwWiIsImlhdCI6MTc1MTQ1NjM1NywiZXhwIjoxNzgyOTkyMzU3fQ.Qs21_0G7ES2p_SVoRO4tp2YVQSmmgHoex7oaGJ8OBZg
+@token = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjQsInVzZXJFbWFpbCI6ImpvaG5hLmRvZUBleGFtcGxlLmNvbSIsInVzZXJCaXJ0aGRhdGUiOiIxOTkwLTAxLTAxVDAwOjAwOjAwLjAwMFoiLCJpYXQiOjE3NTE0NTkzMTEsImV4cCI6MTc4Mjk5NTMxMX0.w_BLQnQ_NIYAPCzj8SdVyvOpacCvjDLWOpygt2edmAU
+
+###
+#Auth User from Seed
+POST http://localhost:3030/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "alice@dev.com",
+  "password": "hashed",
+  "saveConnexion": true
+}
+
 
 ###
 # Auth - Inscription - student
@@ -11,7 +23,7 @@ Content-Type: application/json
   "firstname": "John",
   "lastname": "Doe",
   "email": "john.doe@example.com",
-  "password": "Password123!",
+  "password": "123456",
   "sexe": "M",
   "birthdate": "1990-01-01",
   "role": "student",
@@ -26,8 +38,8 @@ Content-Type: application/json
 {
   "firstname": "Johna",
   "lastname": "Doe",
-  "email": "johna.doe@example.com",
-  "password": "Password123!",
+  "email": "johna.dode@example.com",
+  "password": "mdp123!1",
   "sexe": "F",
   "birthdate": "1990-01-01",
   "role": "helper",
@@ -40,8 +52,8 @@ POST http://localhost:3030/api/auth/login
 Content-Type: application/json
 
 {
-  "email": "john.doe@example.com",
-  "password": "Password123!",
+  "email": "johna.dode@example.com",
+  "password": "mdp123!1",
   "saveConnexion": true
 }
 
@@ -52,7 +64,7 @@ Content-Type: application/json
 
 {
   "email": "johna.doe@example.com",
-  "password": "Password123!",
+  "password": "123456!",
   "saveConnexion": true
 }
 
@@ -66,6 +78,7 @@ Authorization: {{token}}
 # Users - Get all helpers (public)
 GET http://localhost:3030/api/users/helpers
 Content-Type: application/json
+Authorization: {{token}}
 
 ###
 # Users - Get helper by ID (token requis)
