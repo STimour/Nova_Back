@@ -112,70 +112,77 @@ class UserService extends BaseService {
     }
 
     public async createUser(userData: IUser): Promise<boolean> {
-        // Dans la version finale il faudrait changer le type de retour pour gérér au mieux les cas avec des utilisateur existant
-        let createdUser;
         try {
-       
-        if (!this.verifyUserData(userData)) return !this.IS_USER_DATA_VALID;
+            if (!this.verifyUserData(userData)) return !this.IS_USER_DATA_VALID;
 
-        // Séparation des champs attendus pour User
-        const allowedFields = [
-            'lastname',
-            'firstname',
-            'email',
-            'password',
-            'sexe',
-            'birthdate',
-            'role',
-            'avatar'
-        ];
-        const userToCreate: any = {};
-        for (const key of allowedFields) {
-            if (userData[key as keyof IUser] !== undefined) userToCreate[key] = userData[key as keyof IUser];
-        }
+            // Sélectionne uniquement les champs du modèle User
+            const allowedFields = [
+                'lastname', 'firstname', 'email', 'password', 'sexe', 'birthdate', 'role', 'avatar'
+            ];
+            const userToCreate: any = {};
+            for (const key of allowedFields) {
+                if (userData[key as keyof IUser] !== undefined) userToCreate[key] = userData[key as keyof IUser];
+            }
+            userToCreate.deleted = false;
+            if (!userToCreate.role) userToCreate.role = 'student';
 
-        // Valeurs par défaut
-        userToCreate.deleted = false;
-        if (!userToCreate.role) userToCreate.role = 'student';
+            //TODO Corriger côté front 
+            if (userToCreate.birthdate && typeof userToCreate.birthdate === 'string') {
+                userToCreate.birthdate = new Date(userToCreate.birthdate);
+            }
 
-        // Hash du mot de passe
-        const password = await this._authService.hashPassword(userToCreate.password);
-        userToCreate.password = password.toString();
+            // Hash du mot de passe
+            userToCreate.password = (await this._authService.hashPassword(userToCreate.password)).toString();
 
-        // Vérification existence user
-        const isUserExists: boolean = await this._userRepository.isUserExists(
-            userToCreate.email,
-            userToCreate.firstname
-        );
-        if (isUserExists) {
-            logger.warn('User already exists', userToCreate.firstname, userToCreate.lastname);
-            return !this.IS_NEW_USER;
-        }
+            // Voir si l'utilisateur existe déjà
+            const isUserExists = await this._userRepository.isUserExists(
+                userToCreate.email,
+                userToCreate.firstname
+            );
+            if (isUserExists) {
+                logger.warn('User already exists', userToCreate.firstname, userToCreate.lastname);
+                return !this.IS_NEW_USER;
+            }
 
-        // Création du user
-        const isUserCreated: boolean = await this._userRepository.createUser(userToCreate);
-        if (!isUserCreated) {
-            logger.warn('Error creating user', userToCreate.firstname, userToCreate.lastname);
-            return !this.WORK_DONE;
-        }
+            // Crée l'utilisateur
+            const isUserCreated = await this._userRepository.createUser(userToCreate);
+            if (!isUserCreated) {
+                logger.warn('Error creating user', userToCreate.firstname, userToCreate.lastname);
+                return !this.WORK_DONE;
+            }
 
-        //TODO - Liaison Skills et SkillsCategory (faire un truc estethique) et surtout gerer le cas où la liaison n'as pas fonctionnait
-        if(this.WORK_DONE){
-            createdUser = await User.findOne({ where: { email: userToCreate.email } });
-            
+            // Récupère l'utilisateur créé pour avoir son id
+            const createdUser = await User.findOne({ where: { email: userToCreate.email } });
+            if (!createdUser) {
+                logger.warn('User not found after creation', userToCreate.email);
+                return !this.WORK_DONE;
+            }
+
+            // Liaison SkillsCategory (table user_skill_categories)
             if (Array.isArray(userData.SkillsCategory) && userData.SkillsCategory.length > 0) {
                 for (const skillCategoryId of userData.SkillsCategory) {
                     await sequelize.models.UserSkillCategory.create({
-                        userId: createdUser?.id,
+                        userId: createdUser.id,
                         skillCategoryId: skillCategoryId
                     });
                 }
             }
-        }
-        return this.WORK_DONE;
-        } catch (error) {
-            // TODO - revoir la gestion des erreurs
 
+            // // Liaison Skill 
+            // if (Array.isArray(userData.Skill) && userData.Skill.length > 0) {
+            //     for (const skillId of userData.Skill) {
+            //         await sequelize.models.UserSkill.create({
+            //             userId: createdUser.id,
+            //             skillId: skillId
+            //         });
+            //     }
+            // }
+
+            console.log('userToCreate:', userToCreate);
+
+            return this.WORK_DONE;
+        } catch (error) {
+            console.log(error)
             logger.error(
                 ErrorMessages.errorCreatingUser(),
                 userData.firstname,

@@ -53,6 +53,10 @@ User.init({
         type: sequelize_1.DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: false
+    },
+    avatar: {
+        type: sequelize_1.DataTypes.STRING,
+        allowNull: true // ou false si obligatoire
     }
 }, {
     sequelize: db_1.default,
