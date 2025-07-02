@@ -5,6 +5,7 @@ import ErrorMessages from '../utils/error.messages';
 import EmailTemplates from '../utils/email.templates';
 import { notifyUserByEmail } from './nodemailer.service';
 import { User } from '../models/User.model';
+import { getErrorMessage } from '../middlwares/errorHandler.middlewares';
 
 //TODO - amelieurer l'envoie des mails
 //TODO -  || utiliser la class ErrorMessages
@@ -135,7 +136,8 @@ class SessionService {
                 );
             }
         } catch (mailError) {
-            logger.error("Erreur lors de l'envoi du mail de notification helper", mailError);
+            // TODO - Revoir la gestion des erreurs
+            logger.error(ErrorMessages.badRequest(), getErrorMessage(mailError));
         }
 
         return true;
@@ -173,10 +175,8 @@ class SessionService {
                 }
             }
         } catch (mailError) {
-            logger.error(
-                "Erreur lors de l'envoi du mail de notification student (accept)",
-                mailError
-            );
+            // TODO - Revoir la gestion des erreurs
+            logger.error(ErrorMessages.badRequest(), getErrorMessage(mailError));
         }
 
         return true;
@@ -215,10 +215,8 @@ class SessionService {
                 }
             }
         } catch (mailError) {
-            logger.error(
-                "Erreur lors de l'envoi du mail de notification student (refuse)",
-                mailError
-            );
+            // TODO - Revoir la gestion des erreurs
+            logger.error(ErrorMessages.badRequest(), getErrorMessage(mailError));
         }
 
         return true;
