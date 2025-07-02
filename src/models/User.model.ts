@@ -62,6 +62,10 @@ User.init(
             type: DataTypes.BOOLEAN,
             allowNull: false,
             defaultValue: false
+        },
+        avatar: {
+            type: DataTypes.STRING,
+            allowNull: true // ou false si obligatoire
         }
     },
     {

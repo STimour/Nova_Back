@@ -19,7 +19,7 @@ export interface IUser {
     createdAt: Date;
     updatedAt: Date;
     Skill?: Skill[];
-    SkillsCategory?: SkillsCategory[];
+    SkillsCategory?: [];
     Reputation?: Reputation;
     Availability?: Availability;
     avatar: string;

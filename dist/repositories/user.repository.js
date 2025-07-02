@@ -140,7 +140,8 @@ class UserRepository {
     createUser(user) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const newUser = yield User_model_1.User.create(user);
+                console.log('User reçu pour création:', user);
+                const newUser = yield User_model_1.User.create();
                 if (!newUser) {
                     logger_1.default.warn(error_messages_1.default.errorCreatingUser(), user.firstname, user.lastname);
                     return false;

@@ -34,7 +34,7 @@ export interface IUserRepository {
      * @param user Données du nouvel utilisateur.
      * @returns Promise indiquant si la création a réussi.
      */
-    createUser(user: IUser): Promise<boolean>;
+    createUser(user: User): Promise<boolean>;
 
     /**
      * Recherche un utilisateur par son identifiant.

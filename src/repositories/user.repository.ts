@@ -143,9 +143,10 @@ class UserRepository implements IUserRepository {
         }
     }
 
-    public async createUser(user: IUser): Promise<boolean> {
+    public async createUser(user: User): Promise<boolean> {
         try {
-            const newUser = await User.create(user as UserCreationAttributes);
+            console.log('User reçu pour création:', user);
+            const newUser = await User.create();
 
             if (!newUser) {
                 logger.warn(

@@ -13,12 +13,12 @@ class AutController {
         this._authService = new AuthService();
         this._userService = new UserService();
     }
-
+//TODO - revoir le type de newUser car le front envoie aussi les SkillsCategorie - plus de detail dans le controller 
     public async createUser(req: Request, res: Response): Promise<void> {
         try {
             let estInscrit: boolean;
 
-            const newUser: IUser = req.body;
+            const newUser: any = req.body;
 
             estInscrit = await this._userService.createUser(newUser);
 
