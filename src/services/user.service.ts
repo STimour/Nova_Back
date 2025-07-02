@@ -9,6 +9,7 @@ import { IUserToDelete } from '../models/interfaces/IUserToDelete.interface';
 import ErrorMessages from '../utils/error.messages';
 import { ReputationHistoryService } from './reputationHistory.service';
 import { HelperWithNote } from '../typeExtends/user.extends';
+import sequelize from '../configDB/db';
 
 //TODO -  || utiliser la class ErrorMessages
 //TODO - revoir la gestion des types de renvoi pour tous le flux des methodes
@@ -112,29 +113,66 @@ class UserService extends BaseService {
 
     public async createUser(userData: IUser): Promise<boolean> {
         // Dans la version finale il faudrait changer le type de retour pour gérér au mieux les cas avec des utilisateur existant
+        let createdUser;
         try {
-            if (!this.verifyUserData(userData)) return !this.IS_USER_DATA_VALID;
+       
+        if (!this.verifyUserData(userData)) return !this.IS_USER_DATA_VALID;
 
-            const password = this._authService.hashPassword(userData.password);
-            userData.password = (await password).toString();
+        // Séparation des champs attendus pour User
+        const allowedFields = [
+            'lastname',
+            'firstname',
+            'email',
+            'password',
+            'sexe',
+            'birthdate',
+            'role',
+            'avatar'
+        ];
+        const userToCreate: any = {};
+        for (const key of allowedFields) {
+            if (userData[key as keyof IUser] !== undefined) userToCreate[key] = userData[key as keyof IUser];
+        }
 
-            const isUserExists: boolean = await this._userRepository.isUserExists(
-                userData.email,
-                userData.firstname
-            );
+        // Valeurs par défaut
+        userToCreate.deleted = false;
+        if (!userToCreate.role) userToCreate.role = 'student';
 
-            if (isUserExists) {
-                logger.warn('User already exists', userData.firstname, userData.lastname);
-                return !this.IS_NEW_USER;
+        // Hash du mot de passe
+        const password = await this._authService.hashPassword(userToCreate.password);
+        userToCreate.password = password.toString();
+
+        // Vérification existence user
+        const isUserExists: boolean = await this._userRepository.isUserExists(
+            userToCreate.email,
+            userToCreate.firstname
+        );
+        if (isUserExists) {
+            logger.warn('User already exists', userToCreate.firstname, userToCreate.lastname);
+            return !this.IS_NEW_USER;
+        }
+
+        // Création du user
+        const isUserCreated: boolean = await this._userRepository.createUser(userToCreate);
+        if (!isUserCreated) {
+            logger.warn('Error creating user', userToCreate.firstname, userToCreate.lastname);
+            return !this.WORK_DONE;
+        }
+
+        //TODO - Liaison Skills et SkillsCategory (faire un truc estethique) et surtout gerer le cas où la liaison n'as pas fonctionnait
+        if(this.WORK_DONE){
+            createdUser = await User.findOne({ where: { email: userToCreate.email } });
+            
+            if (Array.isArray(userData.SkillsCategory) && userData.SkillsCategory.length > 0) {
+                for (const skillCategoryId of userData.SkillsCategory) {
+                    await sequelize.models.UserSkillCategory.create({
+                        userId: createdUser?.id,
+                        skillCategoryId: skillCategoryId
+                    });
+                }
             }
-            const isUserCreated: boolean = await this._userRepository.createUser(userData);
-
-            if (!isUserCreated) {
-                logger.warn('Error creating user', userData.firstname, userData.lastname);
-                return !this.WORK_DONE;
-            }
-
-            return this.WORK_DONE;
+        }
+        return this.WORK_DONE;
         } catch (error) {
             // a supprimer pour la prod
             console.error('Error creating user:', getErrorMessage(error));

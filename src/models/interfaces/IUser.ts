@@ -1,3 +1,4 @@
+import { JwtPayload } from 'jsonwebtoken';
 import { SkillsCategory } from './../SkillsCategory.model';
 import { Skill } from './../Skill.model';
 import { Availability } from './../Availability.model';
@@ -21,6 +22,7 @@ export interface IUser {
     SkillsCategory?: SkillsCategory[];
     Reputation?: Reputation;
     Availability?: Availability;
+    avatar: string;
 }
 
 // Définis les attributs nécessaires à la création
