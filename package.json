@@ -2,7 +2,7 @@
     "name": "projetfin",
     "version": "1.0.0",
     "description": "projet de fin, le groupe de Meldryck et Timour",
-    "license": "ISC",
+    "license": "SEE LICENSE IN LICENSE",
     "author": "Meldryck et Timour",
     "type": "commonjs",
     "main": "dist/server.js",
